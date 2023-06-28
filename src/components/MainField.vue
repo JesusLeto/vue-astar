@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import Cell from './Cell.vue';
-import { CellType, type CellData } from '@/definitions';
+import { CellType, type CellData } from '@/definitions/definitions';
 import { generateField } from "@/utils"
 
 const props = defineProps<{
@@ -10,9 +10,9 @@ const props = defineProps<{
 
 const initValue = generateField(10, 10)
 
-const cellsValue = ref<CellData[]>(initValue)
-const startCell = ref<Partial<Omit<CellData, 'status'>>>({})
-const targetCell = ref<Partial<Omit<CellData, 'status'>>>({})
+const cellsValue = ref<CellData[][]>(initValue)
+const startCell = ref<Partial<CellData>>({})
+const targetCell = ref<Partial<CellData>>({})
 
 const isPressMouseButton = ref<boolean>(false)
 
@@ -28,51 +28,57 @@ function setCellSetting(data: CellData, force = false) {
     if (props.currentCellType === CellType.Barrier) {
         setBarrierCell(data)
     }
-    cellsValue.value[data.index].status = props.currentCellType
+    cellsValue.value[data.coord.x][data.coord.y].status = props.currentCellType
 }
 
 function setStartCell(data: CellData) {
     if (startCell.value.index === data.index) return
     
-    if (startCell.value.index !== undefined) {
-        cellsValue.value[startCell.value.index].status = CellType.Empty
+    if (startCell.value.coord !== undefined) {
+        cellsValue.value[startCell.value.coord.x][startCell.value.coord.y].status = CellType.Empty
     }
 
-    if (cellsValue.value[data.index].status === CellType.Target) targetCell.value = {}
+    if (cellsValue.value[data.coord.x][data.coord.y].status === CellType.Target) targetCell.value = {}
     startCell.value = data
 }
 
 function setTargetCell(data: CellData) {
     if (targetCell.value.index === data.index) return
     
-    if (targetCell.value.index !== undefined) {
-        cellsValue.value[targetCell.value.index].status = CellType.Empty
+    if (targetCell.value.coord !== undefined) {
+        cellsValue.value[targetCell.value.coord.x][targetCell.value.coord.y].status = CellType.Empty
     }
 
-    if (cellsValue.value[data.index].status === CellType.Start) startCell.value = {}
+    if (cellsValue.value[data.coord.x][data.coord.y].status === CellType.Start) startCell.value = {}
     targetCell.value = data
 }
 
 function setBarrierCell(data: CellData) {
-    if (cellsValue.value[data.index].status === CellType.Start) startCell.value = {}
-    if (cellsValue.value[data.index].status === CellType.Target) targetCell.value = {}
+    if (cellsValue.value[data.coord.x][data.coord.y].status === CellType.Start) startCell.value = {}
+    if (cellsValue.value[data.coord.x][data.coord.y].status === CellType.Target) targetCell.value = {}
 }
 
 </script>
 
 <template>
-  <div 
-    class="field"
-    @mousedown="() => isPressMouseButton = true"
-    @mouseup="() => isPressMouseButton = false"
-    >
-    <Cell
-        v-for="data in cellsValue"
-        :data="data"
-        @click="() => setCellSetting(data, true)"
-        @mousemove="() => setCellSetting(data)"
-    />
+    <div>
+        <div 
+            class="field"
+            @mousedown="() => isPressMouseButton = true"
+            @mouseup="() => isPressMouseButton = false"
+        >
+        <template
+            v-for="row in cellsValue"
+        >
+            <Cell
+            v-for="data in row"
+            :data="data"
+            @click="() => setCellSetting(data, true)"
+            @mousemove="() => setCellSetting(data)"
+        />
+    </template>
   </div>
+    </div>
 </template>
 
 <style scoped>

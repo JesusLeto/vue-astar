@@ -1,20 +1,29 @@
-import { CellType, type CellData } from "./definitions"
+import { CellType, type CellData } from '@/definitions/definitions';
+import type { Ref } from 'vue'
 
 export function generateField(xValue: number, yValue: number) {
-    const data: CellData[] = []
+    const data: CellData[][] = []
     let index = 0
     for(let i = 0; i < xValue; i++) {
+        const rowData: CellData[] = [] 
         for(let j = 0; j < yValue; j++) {
-            data.push({
+            rowData.push({
                 coord: {
                     x: i,
                     y: j
                 },
                 status: CellType.Empty,
-                index
+                index,
+                isVisited: false
             })
             index++
         }
+        data.push(rowData)
     }
+    console.log(data)
     return data
+}
+
+export function testOut(value: Ref<CellData>) {
+    value.value.status = CellType.Barrier
 }

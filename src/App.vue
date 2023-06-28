@@ -4,9 +4,9 @@ import "./main.css"
 import MainField from './components/MainField.vue';
 import RadioGroup from "./components/RadioGroup.vue";
 import { ref } from "vue";
-import { CellType } from "./definitions";
+import { CellType } from "./definitions/definitions";
 
-const currentCellType = ref(CellType.Empty)
+const currentCellType = ref<CellType>(CellType.Empty)
 
 </script>
 

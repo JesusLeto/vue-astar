@@ -11,13 +11,14 @@ type coords = {
 }
 
 export interface SearchData {
-    start: coords,
-    target: coords,
+    start: coords
+    target: coords
     barrier: coords[]
 }
 
 export interface CellData {
-    coord: coords,
+    coord: coords
     index: number
     status: CellType | undefined
+    isVisited: Boolean
 }

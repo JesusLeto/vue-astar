@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { CellType, type CellData } from '@/definitions';
+import { CellType, type CellData } from '@/definitions/definitions';
 
 const props = defineProps<{
   data: CellData
