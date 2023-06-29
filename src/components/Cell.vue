@@ -8,6 +8,7 @@ const props = defineProps<{
 
 const cellColor = computed(() => {
   const cellStatus = props.data.status
+  if (props.data.isVisited) return "blue"
   switch (cellStatus) {
     case CellType.Start:
       return "red"
@@ -18,7 +19,6 @@ const cellColor = computed(() => {
     default:
       return "white"    
   }
-
 })
 
 </script>
@@ -33,11 +33,13 @@ const cellColor = computed(() => {
 
 <style scoped>
 .cell {
-    width: 80px;
-    height: 80px;
+    width: 20px;
+    height: 20px;
     text-align: center;
-    border: 1px solid black;
-    margin-right: 4px;
-    margin-bottom: 4px;
+    border: 1px solid rgb(146, 146, 146);
+    margin-right: 1px;
+    margin-bottom: 1px;
 }
 </style>
+
+// 1 + 21 * 40 = 841

@@ -1,4 +1,4 @@
-class Queue<T> {
+export default class Queue<T> {
     data: T[];
 
     constructor(start: T) {
@@ -15,6 +15,10 @@ class Queue<T> {
 
     empty() {
         return !this.data.length
+    }
+
+    clear() {
+        this.data = []
     }
 
 }

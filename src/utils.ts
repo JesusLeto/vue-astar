@@ -9,8 +9,8 @@ export function generateField(xValue: number, yValue: number) {
         for(let j = 0; j < yValue; j++) {
             rowData.push({
                 coord: {
-                    x: i,
-                    y: j
+                    x: j,
+                    y: i
                 },
                 status: CellType.Empty,
                 index,
