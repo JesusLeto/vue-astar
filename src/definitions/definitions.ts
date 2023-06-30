@@ -5,6 +5,11 @@ export enum CellType {
     Empty = "Empty"
 }
 
+export enum ExpansionType {
+    Expanded = "Expanded",
+    Processed = "Processed"
+}
+
 type coords = {
     x: number,
     y: number
@@ -20,5 +25,6 @@ export interface CellData {
     coord: coords
     index: number
     status: CellType | undefined
+    expansionStatus: ExpansionType | undefined
     isVisited: Boolean
 }

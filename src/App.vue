@@ -22,4 +22,7 @@ const currentCellType = ref<CellType>(CellType.Empty)
 </template>
 
 <style scoped>
+.main {
+  position: relative;
+}
 </style>

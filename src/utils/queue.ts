@@ -1,5 +1,5 @@
 export default class Queue<T> {
-    data: T[];
+    private data: T[];
 
     constructor(start: T) {
         this.data = [start]

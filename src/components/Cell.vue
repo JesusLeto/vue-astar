@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { CellType, type CellData } from '@/definitions/definitions';
+import { CellType, type CellData, ExpansionType } from '@/definitions/definitions';
 
 const props = defineProps<{
   data: CellData
@@ -8,7 +8,19 @@ const props = defineProps<{
 
 const cellColor = computed(() => {
   const cellStatus = props.data.status
-  if (props.data.isVisited) return "blue"
+  const cellExpandStatus = props.data.expansionStatus
+
+  if(cellExpandStatus) {
+    switch(cellExpandStatus) {
+      case ExpansionType.Expanded:
+        return "#ffd8b1"
+      case ExpansionType.Processed:
+        return "aqua"
+      default:
+        return ""
+    }
+  }
+  
   switch (cellStatus) {
     case CellType.Start:
       return "red"

@@ -1,7 +1,5 @@
 <script setup lang="ts">
-
 import { CellType } from '@/definitions/definitions';
-
 
 const props = defineProps({
   modelValue: { type: String, required: true },

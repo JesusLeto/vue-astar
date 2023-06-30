@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import Cell from './Cell.vue';
 import { CellType, type CellData } from '@/definitions/definitions';
 import { generateField } from "@/utils"
-import startExpansion from '@/startExpansion';
+import startExpansion from '@/utils/expansion';
 
 const props = defineProps<{
     currentCellType: CellType
@@ -75,13 +75,13 @@ function start() {
             @mouseup="() => isPressMouseButton = false"
         >
             <template
-            v-for="row in cellsValue"
+                v-for="row in cellsValue"
         >
             <Cell
-            v-for="data in row"
-            :data="data"
-            @click="() => setCellSetting(data, true)"
-            @mousemove="() => setCellSetting(data)"
+                v-for="data in row"
+                :data="data"
+                @click="() => setCellSetting(data, true)"
+                @mousemove="() => setCellSetting(data)"
         />
             </template>
         </div>
@@ -90,10 +90,9 @@ function start() {
 
 <style scoped>
 .field {
-    position: absolute;
-    top: 50%;
+    position: relative;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%);
     width: 843px;
     height: 843px;
     border: 1px solid black;
