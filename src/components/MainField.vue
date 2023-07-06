@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import Cell from './Cell.vue';
-import { CellType, type CellData } from '@/definitions/definitions';
+import { CellType, type CellData, type coords } from '@/definitions/definitions';
 import { generateField } from "@/utils"
-import startExpansion from '@/utils/expansion';
+import Expansion from '@/utils/expansion';
 
 const props = defineProps<{
     currentCellType: CellType
@@ -14,6 +14,7 @@ const initValue = generateField(40, 40)
 const cellsValue = ref<CellData[][]>(initValue)
 const startCell = ref<Partial<CellData>>({})
 const targetCell = ref<Partial<CellData>>({})
+const isProcessing = ref<boolean>(false)
 
 const isPressMouseButton = ref<boolean>(false)
 
@@ -59,16 +60,52 @@ function setBarrierCell(data: CellData) {
     if (cellsValue.value[data.coord.y][data.coord.x].status === CellType.Target) targetCell.value = {}
 }
 
-function start() {
-    if (startCell.value.index === undefined) return
-    startExpansion(cellsValue, startCell.value as CellData)
+async function start() {
+    if (startCell.value.index === undefined) {
+        showAlert("Set start")
+        return
+    }
+    if (targetCell.value.index === undefined) {
+        showAlert("Set target")
+        return
+    }
+    Expansion.setup(cellsValue.value, startCell.value as CellData)
+    await Expansion.start()
+}
+
+function clear() {
+    startCell.value = {}
+    targetCell.value = {}
+
+    cellsValue.value.forEach(row => {
+        row.forEach(cell => {
+            cell.status = CellType.Empty
+            cell.isVisited = false
+            cell.expansionStatus = undefined
+        })
+    })
+}
+
+function showAlert(text: string) {
+    alert(text)
+}
+
+function setDelayTime(e: Event) {
+    Expansion.setDelayTime(Number((e.target as HTMLInputElement).value))
 }
 
 </script>
 
 <template>
     <div>
-        <button @click="start">Start</button>
+        <div class="tools">
+            <button @click="start" :disabled="isProcessing">Start</button>
+            <button @click="clear" :disabled="isProcessing">Clear</button>
+            <button @click="Expansion.start">Resume</button>
+            <button @click="Expansion.stop">Stop</button>
+            <input type="range" min="0" max="100" step="1" value="50" @input="(e) => setDelayTime(e)"/>
+        </div>
+        
         <div 
             class="field"
             @mousedown="() => isPressMouseButton = true"
@@ -100,5 +137,11 @@ function start() {
     flex-wrap: wrap;
     padding-top: 1px;
     padding-left: 1px;
+}
+
+.tools {
+    display:flex;
+    width: 250px;
+    justify-content: space-between;
 }
 </style>

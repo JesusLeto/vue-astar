@@ -1,9 +1,5 @@
-export default class Queue<T> {
-    private data: T[];
-
-    constructor(start: T) {
-        this.data = [start]
-    }
+class Queue<T> {
+    private data: T[] = [];
 
     get() {
         return this.data.shift()
@@ -22,3 +18,5 @@ export default class Queue<T> {
     }
 
 }
+
+export default new Queue()

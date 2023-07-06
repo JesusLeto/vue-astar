@@ -2,7 +2,8 @@ export enum CellType {
     Start = "Start",
     Target = "Target",
     Barrier = "Barrier",
-    Empty = "Empty"
+    Empty = "Empty",
+    Route = "Route"
 }
 
 export enum ExpansionType {
@@ -10,7 +11,7 @@ export enum ExpansionType {
     Processed = "Processed"
 }
 
-type coords = {
+export type coords = {
     x: number,
     y: number
 }
@@ -24,7 +25,16 @@ export interface SearchData {
 export interface CellData {
     coord: coords
     index: number
-    status: CellType | undefined
-    expansionStatus: ExpansionType | undefined
+    status?: CellType
+    expansionStatus?: ExpansionType
     isVisited: Boolean
+}
+
+export interface GraphRouteData {
+    value: coords,
+    preRouteStepData?: GraphRouteData
+}
+
+export interface GraphTreeData {
+    [key: number]: GraphRouteData
 }

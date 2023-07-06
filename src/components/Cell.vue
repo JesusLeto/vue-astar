@@ -10,17 +10,6 @@ const cellColor = computed(() => {
   const cellStatus = props.data.status
   const cellExpandStatus = props.data.expansionStatus
 
-  if(cellExpandStatus) {
-    switch(cellExpandStatus) {
-      case ExpansionType.Expanded:
-        return "#ffd8b1"
-      case ExpansionType.Processed:
-        return "aqua"
-      default:
-        return ""
-    }
-  }
-  
   switch (cellStatus) {
     case CellType.Start:
       return "red"
@@ -28,9 +17,19 @@ const cellColor = computed(() => {
       return "orange"
     case CellType.Barrier:
       return "black"
-    default:
-      return "white"    
+    case CellType.Route:
+      return "gold"
   }
+
+  switch(cellExpandStatus) {
+      case ExpansionType.Expanded:
+        return "#ffd8b1"
+      case ExpansionType.Processed:
+        return "aqua"
+      default:
+        return ""
+    }
+
 })
 
 </script>

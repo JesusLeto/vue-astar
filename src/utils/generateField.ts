@@ -20,7 +20,6 @@ export function generateField(xValue: number, yValue: number) {
         }
         data.push(rowData)
     }
-    console.log(data)
     return data
 }
 
