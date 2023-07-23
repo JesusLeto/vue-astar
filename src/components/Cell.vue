@@ -1,56 +1,125 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { CellType, type CellData, ExpansionType } from '@/definitions/definitions';
+import {type CellData, StartOrTargerType } from '@/definitions/definitions';
+import Aimg from './Aimg.vue';
 
 const props = defineProps<{
   data: CellData
 }>()
 
-const cellColor = computed(() => {
-  const cellStatus = props.data.status
-  const cellExpandStatus = props.data.expansionStatus
 
-  switch (cellStatus) {
-    case CellType.Start:
-      return "red"
-    case CellType.Target: 
-      return "orange"
-    case CellType.Barrier:
-      return "black"
-    case CellType.Route:
-      return "gold"
-  }
-
-  switch(cellExpandStatus) {
-      case ExpansionType.Expanded:
-        return "#ffd8b1"
-      case ExpansionType.Processed:
-        return "aqua"
-      default:
-        return ""
-    }
-
+const cellStatusStyle = computed(() => {
+  if (props.data.isRoute) return "route"
+  if (props.data.isBarrier) return "barier"
+  if (props.data.isExpansionProcess) return "expansion"
+  return ""
 })
+
+const isStartOrtargetCell = computed(() => {
+  if (props.data.startOrTarger === StartOrTargerType.Start) return "start"
+  if (props.data.startOrTarger === StartOrTargerType.Target) return "target"
+  return ""
+})
+
 
 </script>
 
 <template>
   <div 
-    class="cell"
-    :style="{backgroundColor: cellColor}"
-    >
+    class="wrapper"
+  >
+    <Aimg 
+      v-if="isStartOrtargetCell"
+      :img-name="isStartOrtargetCell"
+    />
+
+    <div
+      v-else
+      class="cell" 
+      :class="cellStatusStyle"
+    />
   </div>
 </template>
 
-<style scoped>
-.cell {
-    width: 20px;
-    height: 20px;
-    text-align: center;
-    border: 1px solid rgb(146, 146, 146);
-    margin-right: 1px;
-    margin-bottom: 1px;
+<style scoped lang="scss">
+.wrapper {
+    @include flex-center;
+    width: $indent-x4;
+    height: $indent-x4;
+    border: 1px solid $table-color;
+
+    .cell {
+      width: 100%;
+      height: 100%;
+    }
+
+    .barier {
+      background-color: $cell-block;
+      animation-name: bounce-in;
+      animation-duration: 500ms;
+      animation-timing-function: linear;
+    }
+
+    .expansion {
+      background-color: #41c9e0;
+      animation-name: expansion-in;
+      animation-duration: 1200ms;
+      animation-timing-function: linear;
+    }
+
+    .route {
+      transform: scale(1.0666);
+      background-color: #FDFE6A;
+      animation-name: route-in;
+      animation-duration: 200ms;
+      animation-timing-function: linear;;
+    }
+}
+
+@keyframes bounce-in {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.25);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes expansion-in {
+  0%{
+    background-color: #414974;
+    border-radius: 100%;
+    transform: scale(0);
+  }
+  10% {
+    border-radius: 50%;
+  }
+  60% {
+    background-color: #4884d6;
+  }
+  75% {
+    border-radius: 10%;
+  }
+  80% {
+    background-color: #42ddcb;
+  }
+  100%{
+    background-color: #41c9e0;
+    border-radius: 0%;
+    transform: scale(1);
+  }
+}
+
+@keyframes route-in {
+  0% {
+    transform: scale(0.25);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 </style>
 
-// 1 + 21 * 40 = 841

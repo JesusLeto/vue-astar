@@ -1,103 +1,17 @@
 import type { Ref } from "vue"
-import  {type CellData, CellType, ExpansionType, type GraphTreeData, type GraphRouteData, type coords} from "@/definitions/definitions"
+import  {type CellData, CellType, ExpansionType, type GraphTreeData, type GraphRouteData, type coords, StartOrTargerType} from "@/definitions/definitions"
 import Queue from "./queue"
 import { delay } from "./delay"
-
-// const Route: Partial<GraphRoutesData> = {}
-
-// export default async function startExpansion(data: Ref<CellData[][]>, startCell: CellData, isProcessing: Ref<boolean>) {
-//     isProcessing.value = true 
-//     const queue = new Queue<CellData>(startCell)
-
-//     Route[startCell.index] = {
-//         value: startCell.coord,
-//     }
-
-//     while (!queue.empty()) {
-//         const {coord: currentCellCoords, index: currentCellIndex} = queue.get() as CellData
-
-//         const currentCell = data.value[currentCellCoords.y][currentCellCoords.x]
-
-//         if (currentCell.isVisited) continue
-
-//         if (currentCell.status === CellType.Target) {
-//             const routeAsGraph = Route[currentCell.index]
-//             if (routeAsGraph) await buildRoute(routeAsGraph, data)
-//             isProcessing.value = false
-//             return
-//         }
-
-//         currentCell.isVisited = true
-
-//         if (startCell.index !== currentCell.index) currentCell.expansionStatus = ExpansionType.Processed
-
-//         await delay(1)
-
-//         computeNeighbour(currentCell, data, queue)
-
-//         if (startCell.index !== currentCell.index)  {
-//             currentCell.expansionStatus = ExpansionType.Expanded
-//         }
-       
-//     }
-// }
-
-// function computeNeighbour(cellData: CellData, data: Ref<CellData[][]>, queue: Queue<CellData>) {
-//     const {coord: cellCoords, index} = cellData
-
-//     if (cellCoords.x - 1 > -1) {
-//         const possibleNeighbour = data.value[cellCoords.y][cellCoords.x - 1]
-//         checkPossibleNeighbour(possibleNeighbour, queue, index)
-//     }
-//     if (cellCoords.y + 1 < 40) {
-//         const possibleNeighbour = data.value[cellCoords.y + 1][cellCoords.x]
-//         checkPossibleNeighbour(possibleNeighbour, queue, index)
-//     }
-//     if (cellCoords.x + 1 < 40) {
-//         const possibleNeighbour = data.value[cellCoords.y][cellCoords.x + 1]
-//         checkPossibleNeighbour(possibleNeighbour, queue, index)
-//     }
-//     if (cellCoords.y - 1 > -1) {
-//         const possibleNeighbour = data.value[cellCoords.y - 1][cellCoords.x]
-//         checkPossibleNeighbour(possibleNeighbour, queue, index)
-//     }
-// }
-
-// function checkPossibleNeighbour(nieghbour: CellData, queue: Queue<CellData>, parentIndex: number) {
-//     if(!nieghbour.isVisited && nieghbour.status !== CellType.Barrier) {
-//         nieghbour.expansionStatus = ExpansionType.Processed
-//         queue.add(nieghbour)
-
-//         const parentData  = Route[parentIndex]
-//         if (parentData) {
-//             Route[nieghbour.index] = {
-//                 value: nieghbour.coord,
-//                 preRouteStepData: parentData
-//             }
-//         }
-//     }
-// }
-
-// async function buildRoute(graph: RouteStepData, data:  Ref<CellData[][]>) {
-//     const routeCoords: coords[] = []
-//     while(graph.preRouteStepData) {
-//         routeCoords.push(graph.value)
-//         graph = graph.preRouteStepData
-//     }
-
-//     for (let rCoords of routeCoords.reverse()) {
-//         data.value[rCoords.y][rCoords.x].status = CellType.Route
-//         await delay(5)
-//     }
-// }
 
 function initStartValue(): CellData {
     return {
         isVisited: false,
+        isBarrier: false,
+        isRoute: false,
+        isExpansionProcess: false,
         coord: {x: 0, y: 0},
         index: 0
     }
-
 }
 
 
@@ -128,23 +42,24 @@ class Expansion {
             const currentCell = this.data[currentCellCoords.y][currentCellCoords.x]
     
             if (currentCell.isVisited) continue
-            if (currentCell.status === CellType.Target) {
+            if (currentCell.startOrTarger === StartOrTargerType.Target) {
                 await this.buildRoute(this.graphRoutes[currentCell.index])
+
                 //isProcessing.value = false
                 return
             }
     
             currentCell.isVisited = true
     
-            if (this.startCell.index !== currentCell.index) currentCell.expansionStatus = ExpansionType.Processed
+            if (this.startCell.index !== currentCell.index) currentCell.isExpansionProcess = true
     
             await delay(this.delayTime)
     
             this.computeNeighbour(currentCell)
     
-            if (this.startCell.index !== currentCell.index)  {
-                currentCell.expansionStatus = ExpansionType.Expanded
-            }
+            // if (this.startCell.index !== currentCell.index)  {
+            //     currentCell.expansionStatus = ExpansionType.Expanded
+            // }
            
         }
     }
@@ -156,10 +71,10 @@ class Expansion {
         if (cellCoords.x - 1 > -1) {
             possibleNeighbours.push(this.data[cellCoords.y][cellCoords.x - 1])
         }
-        if (cellCoords.y + 1 < 40) {
+        if (cellCoords.y + 1 < 28) {
             possibleNeighbours.push(this.data[cellCoords.y + 1][cellCoords.x])
         }
-        if (cellCoords.x + 1 < 40) {
+        if (cellCoords.x + 1 < 50) {
             possibleNeighbours.push(this.data[cellCoords.y][cellCoords.x + 1])
         }
         if (cellCoords.y - 1 > -1) {
@@ -172,8 +87,8 @@ class Expansion {
 
     checkPossibleNeighbour(nieghboursData: CellData[], parentIndex: number) {
         nieghboursData.forEach(nieghbour => {
-            if(!nieghbour.isVisited && nieghbour.status !== CellType.Barrier) {
-                nieghbour.expansionStatus = ExpansionType.Processed
+            if(!nieghbour.isVisited && !nieghbour.isBarrier) {
+                nieghbour.isExpansionProcess = true
                 Queue.add(nieghbour)
 
                 this.graphRoutes[nieghbour.index] = {
@@ -194,8 +109,8 @@ class Expansion {
         }
     
         for (const rCoords of routeCoords.reverse()) {
-            this.data[rCoords.y][rCoords.x].status = CellType.Route
-            await delay(5)
+            this.data[rCoords.y][rCoords.x].isRoute = true
+            await delay(25)
         }
     }
 

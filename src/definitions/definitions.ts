@@ -6,6 +6,11 @@ export enum CellType {
     Route = "Route"
 }
 
+export enum StartOrTargerType {
+    Start = "Start",
+    Target = "Target",
+}
+
 export enum ExpansionType {
     Expanded = "Expanded",
     Processed = "Processed"
@@ -25,9 +30,13 @@ export interface SearchData {
 export interface CellData {
     coord: coords
     index: number
-    status?: CellType
-    expansionStatus?: ExpansionType
+
+    startOrTarger?: StartOrTargerType
+    //status?: CellType
+    isBarrier: Boolean
+    isExpansionProcess: Boolean
     isVisited: Boolean
+    isRoute: Boolean
 }
 
 export interface GraphRouteData {

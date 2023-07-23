@@ -1,28 +1,31 @@
-import { CellType, type CellData } from '@/definitions/definitions';
-import type { Ref } from 'vue'
+import { type CellData, StartOrTargerType } from '@/definitions/definitions';
+
+function isStartOrTargerCell(x: number, y: number ) {
+    if (x === 10 && y === 10) return StartOrTargerType.Start
+    if (x === 40 && y === 20) return StartOrTargerType.Target
+    return
+}
 
 export function generateField(xValue: number, yValue: number) {
     const data: CellData[][] = []
     let index = 0
-    for(let i = 0; i < xValue; i++) {
+    for(let y = 0; y < yValue; y++) {
         const rowData: CellData[] = [] 
-        for(let j = 0; j < yValue; j++) {
+        for(let x = 0; x < xValue; x++) {
             rowData.push({
                 coord: {
-                    x: j,
-                    y: i
+                    x,
+                    y
                 },
-                status: CellType.Empty,
                 index,
-                isVisited: false
+                isBarrier: false,
+                isVisited: false,
+                isExpansionProcess: false,
+                startOrTarger: isStartOrTargerCell(x,y)
             })
             index++
         }
         data.push(rowData)
     }
     return data
-}
-
-export function testOut(value: Ref<CellData>) {
-    value.value.status = CellType.Barrier
 }
