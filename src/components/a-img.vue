@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watchEffect } from 'vue';
+import { ref, watchEffect } from "vue"
 
 const props = defineProps<{
   imgName: string
@@ -8,7 +8,7 @@ const props = defineProps<{
 const imgPath = ref()
 
 watchEffect(async () => {
-    imgPath.value = (await import(/* @vite-ignore */ `@a/img/${props.imgName}.png`)).default
+	imgPath.value = (await import(/* @vite-ignore */ `@a/img/${props.imgName}.png`)).default
 })
 
 

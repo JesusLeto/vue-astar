@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import {type CellData, StartOrTargerType } from '@/definitions/definitions';
-import Aimg from './Aimg.vue';
+import { computed } from "vue"
+import {type CellData, StartOrTargerType } from "@/definitions/definitions"
+import AImg from "./a-img.vue"
 
 const props = defineProps<{
   data: CellData
@@ -9,16 +9,16 @@ const props = defineProps<{
 
 
 const cellStatusStyle = computed(() => {
-  if (props.data.isRoute) return "route"
-  if (props.data.isBarrier) return "barier"
-  if (props.data.isExpansionProcess) return "expansion"
-  return ""
+	if (props.data.isRoute) return "route"
+	if (props.data.isBarrier) return "barier"
+	if (props.data.isExpansionProcess) return "expansion"
+	return ""
 })
 
 const isStartOrtargetCell = computed(() => {
-  if (props.data.startOrTarger === StartOrTargerType.Start) return "start"
-  if (props.data.startOrTarger === StartOrTargerType.Target) return "target"
-  return ""
+	if (props.data.startOrTarger === StartOrTargerType.Start) return "start"
+	if (props.data.startOrTarger === StartOrTargerType.Target) return "target"
+	return ""
 })
 
 
@@ -28,7 +28,7 @@ const isStartOrtargetCell = computed(() => {
   <div 
     class="wrapper"
   >
-    <Aimg 
+    <a-img 
       v-if="isStartOrtargetCell"
       :img-name="isStartOrtargetCell"
     />

@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { CellType } from '@/definitions/definitions';
+import { CellType } from "@/definitions/definitions"
 
 defineProps({
-  modelValue: { type: String, required: true },
+	modelValue: { type: String, required: true },
 })
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(["update:modelValue"])
 
 function handleCheck(event: Event) {
-  emit('update:modelValue', (event.target as HTMLInputElement).value)
+	emit("update:modelValue", (event.target as HTMLInputElement).value)
 }
 
 </script>

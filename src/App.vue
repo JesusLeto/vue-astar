@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import "./main.css"
 
-import Board from './components/Board.vue';
-import RadioGroup from "./components/RadioGroup.vue";
-import { ref } from "vue";
-import { CellType } from "./definitions/definitions";
+import BoardView from "./components/board-view.vue"
+import { CellType } from "./definitions/definitions"
 
-const currentCellType = ref<CellType>(CellType.Empty)
+
 
 </script>
 
@@ -15,12 +13,11 @@ const currentCellType = ref<CellType>(CellType.Empty)
     <!-- <RadioGroup 
       v-model="currentCellType"
     /> -->
-    <Board 
+    <board-view 
       :current-cell-type="CellType.Barrier"
     />
   </div>
 </template>
-
 <style scoped>
 .App {
   width: 100%;
