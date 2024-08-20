@@ -16,31 +16,32 @@ export enum ExpansionType {
     Processed = "Processed"
 }
 
-export type coords = {
+export type Coords = {
     x: number,
     y: number
 }
 
 export interface SearchData {
-    start: coords
-    target: coords
-    barrier: coords[]
+    start: Coords
+    target: Coords
+    barrier: Coords[]
 }
 
 export interface CellData {
-    coord: coords
+    coord: Coords
     index: number
 
-    startOrTarger?: StartOrTargerType
+    startOrTarget: StartOrTargerType | null
     //status?: CellType
-    isBarrier: Boolean
-    isExpansionProcess: Boolean
-    isVisited: Boolean
-    isRoute: Boolean
+
+    isBarrier: boolean
+    isExpansionProcess: boolean
+    isVisited: boolean
+    isRoute?: boolean
 }
 
 export interface GraphRouteData {
-    value: coords,
+    value: Coords,
     preRouteStepData?: GraphRouteData
 }
 

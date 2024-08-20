@@ -16,7 +16,7 @@ watchEffect(async () => {
 
 <template>
     <div class="a-img">
-        <img 
+        <img
             draggable="false"
             :src="imgPath"
     />
@@ -28,9 +28,10 @@ watchEffect(async () => {
     @include flex-center;
     width: 100%;
     height: 100%;
+    user-select: none;
 
     img {
-        width: 24px; 
+        width: 24px;
         height: 24px;
     }
 }

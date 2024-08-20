@@ -1,2 +1,2 @@
-export * from "./generateField"
+export * from "./generateDefaultBoard"
 export * from "./queue"

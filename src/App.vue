@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import "./main.css"
-
 import BoardView from "./components/board-view.vue"
 import { CellType } from "./definitions/definitions"
 
@@ -10,10 +8,10 @@ import { CellType } from "./definitions/definitions"
 
 <template>
   <div class="App">
-    <!-- <RadioGroup 
+    <!-- <RadioGroup
       v-model="currentCellType"
     /> -->
-    <board-view 
+    <board-view
       :current-cell-type="CellType.Barrier"
     />
   </div>

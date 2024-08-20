@@ -2,19 +2,12 @@
 import { ref } from "vue"
 import CellView from "./cell-view.vue"
 import { type CellData, StartOrTargerType } from "@/definitions/definitions"
-import { generateField } from "@/utils"
-//import Expansion from "@/utils/expansion"
+import {useExpansion} from "@/utils/expansion"
+import {useBoardStore} from "@/store/useBoardStore"
+import {storeToRefs} from "pinia"
 
-const initValue = generateField(50, 28)
-
-const cellsValue = ref<CellData[][]>(initValue)
-
-const startCell = ref<CellData>(cellsValue.value[10][10])
-const preStartCell = ref<CellData>(cellsValue.value[10][10])
-
-const targetCell = ref<CellData>(cellsValue.value[20][40])
-const preTargetCell = ref<CellData>(cellsValue.value[20][40])
-
+const boardStore = useBoardStore()
+const { boardCellsState } = storeToRefs(boardStore)
 
 
 
@@ -25,10 +18,10 @@ const isTargetCellMove = ref<boolean>(false)
 function onMouseAction(data: CellData, isClick = false) {
 	if (!isPressMouseButton.value && !isClick) return
 
-	if (isClick && data.startOrTarger === StartOrTargerType.Start) {
+	if (isClick && data.startOrTarget === StartOrTargerType.Start) {
 		isStartCellMove.value = true
 	}
-	if (isClick && data.startOrTarger === StartOrTargerType.Target) {
+	if (isClick && data.startOrTarget === StartOrTargerType.Target) {
 		isTargetCellMove.value = true
 	}
 
@@ -36,24 +29,12 @@ function onMouseAction(data: CellData, isClick = false) {
 }
 
 function setCellSetting(data: CellData) {
-	if (isStartCellMove.value && data.startOrTarger !== StartOrTargerType.Target) {
-		if (data.index !== preStartCell.value.index) {
-			const {coord: preStartCoords} = preStartCell.value
-			delete cellsValue.value[preStartCoords.y][preStartCoords.x].startOrTarger
-			cellsValue.value[data.coord.y][data.coord.x].startOrTarger = StartOrTargerType.Start
-			startCell.value = data
-			preStartCell.value = data
-		}
-	} else if (isTargetCellMove.value && data.startOrTarger !== StartOrTargerType.Start) {
-		if (data.index !== preTargetCell.value.index) {
-			const {coord: preTargetCoords} = preTargetCell.value
-			delete cellsValue.value[preTargetCoords.y][preTargetCoords.x].startOrTarger
-			cellsValue.value[data.coord.y][data.coord.x].startOrTarger = StartOrTargerType.Target
-			targetCell.value = data
-			preTargetCell.value = data
-		}
+	if (isStartCellMove.value && data.startOrTarget !== StartOrTargerType.Target) {
+		boardStore.setCellSetting(data, StartOrTargerType.Start)
+	} else if (isTargetCellMove.value && data.startOrTarget !== StartOrTargerType.Start) {
+		boardStore.setCellSetting(data, StartOrTargerType.Target)
 	} else {
-		cellsValue.value[data.coord.y][data.coord.x].isBarrier = true
+		boardStore.setCellSetting(data)
 	}
 }
 
@@ -63,25 +44,16 @@ function onMouseUp() {
 	isTargetCellMove.value = false
 }
 
-
-
-// async function start() {
-//     if (startCell.value.index === undefined) {
-    
-// 		return
-// 	}
-// 	if (targetCell.value.index === undefined) {
-    
-// 		return
-// 	}
-// 	Expansion.setup(cellsValue.value, startCell.value as CellData)
-// 	await Expansion.start()
-// }
+const { onStart } = useExpansion()
+function start() {
+	onStart()
+}
 
 </script>
 
 <template>
-    <div 
+  <button @click="start()" >start</button>
+    <div
         class="board"
         @mousedown="isPressMouseButton = true"
         @mouseup="onMouseUp"
@@ -89,7 +61,7 @@ function onMouseUp() {
         @drop="false"
         >
         <template
-            v-for="row in cellsValue"
+            v-for="row in boardCellsState"
         >
             <cell-view
                 v-for="(data, index) in row"

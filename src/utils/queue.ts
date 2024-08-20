@@ -1,22 +1,13 @@
-class Queue<T> {
-    private data: T[] = [];
+export const QueueState = <T>() => {
+	const data: T[] = []
 
-    get() {
-        return this.data.shift()
-    }
+	const get = () => data.shift()
+	const add = (el: T) => data.push(el)
+	const empty = () => !data.length
 
-    add(el: T) {
-        this.data.push(el)
-    }
-
-    empty() {
-        return !this.data.length
-    }
-
-    clear() {
-        this.data = []
-    }
-
+	return {
+		get,
+		add,
+		empty
+	}
 }
-
-export default new Queue()

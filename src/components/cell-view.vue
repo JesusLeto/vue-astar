@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed } from "vue"
 import {type CellData, StartOrTargerType } from "@/definitions/definitions"
-import AImg from "./a-img.vue"
+import AImg from "./shared/a-img.vue"
+import UiSvg from "@/components/shared/ui-svg.vue"
 
 const props = defineProps<{
   data: CellData
@@ -15,9 +16,9 @@ const cellStatusStyle = computed(() => {
 	return ""
 })
 
-const isStartOrtargetCell = computed(() => {
-	if (props.data.startOrTarger === StartOrTargerType.Start) return "start"
-	if (props.data.startOrTarger === StartOrTargerType.Target) return "target"
+const isStartOrTargetCell = computed(() => {
+	if (props.data.startOrTarget === StartOrTargerType.Start) return "start"
+	if (props.data.startOrTarget === StartOrTargerType.Target) return "target"
 	return ""
 })
 
@@ -25,17 +26,16 @@ const isStartOrtargetCell = computed(() => {
 </script>
 
 <template>
-  <div 
-    class="wrapper"
-  >
-    <a-img 
-      v-if="isStartOrtargetCell"
-      :img-name="isStartOrtargetCell"
+  <div class="wrapper">
+    <ui-svg
+        v-if="isStartOrTargetCell"
+        :name="isStartOrTargetCell"
+        draggable="false"
     />
 
     <div
       v-else
-      class="cell" 
+      class="cell"
       :class="cellStatusStyle"
     />
   </div>
