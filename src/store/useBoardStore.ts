@@ -1,28 +1,53 @@
 import { defineStore } from "pinia"
 import {onMounted, ref} from "vue"
-import type {CellData, Coords} from "@/definitions/definitions"
 import {generateDefaultBoard} from "@/utils"
-import {StartOrTargerType} from "@/definitions/definitions"
 import { isEqual } from "lodash-es"
+import type {CellData, CoordsData, CellType} from "@/types"
 
 export const useBoardStore = defineStore("board:store", () => {
 	const boardCellsState = ref<CellData[][]>([])
 
 	// const historyBoardState = ref<{ old: CellData, new: CellData }[]>([])
 
-	const startCellCoords = ref<Coords & { index: number }>({
+	const startCellCoords = ref<CoordsData & { index: number }>({
 		x: 0,
 		y: 0,
 		index: 0
 	})
 
-	const targetCellCoords = ref<Coords & { index: number }>({
+	const targetCellCoords = ref<CoordsData & { index: number }>({
 		x: 0,
 		y: 0,
 		index: 0
 	})
 
-	onMounted(() => {
+	const setCellSetting = (cell: CellData, currentType: CellType | null = null) => {
+		const { coords, index } = cell
+
+		try {
+			const specialCell = currentType === 'start' || currentType === 'target'
+
+			if (!specialCell) {
+				boardCellsState.value[coords.y][coords.x].type = 'barrier'
+			}
+
+			if (currentType === 'start' && !isEqual(startCellCoords, coords)) {
+				boardCellsState.value[startCellCoords.value.y][startCellCoords.value.x].type = ''
+				boardCellsState.value[coords.y][coords.x].type = 'start'
+				startCellCoords.value = { ...coords, index }
+			}
+
+			if (currentType === 'target' && !isEqual(targetCellCoords, coords)) {
+				boardCellsState.value[targetCellCoords.value.y][targetCellCoords.value.x].type = ''
+				boardCellsState.value[coords.y][coords.x].type = 'target'
+				targetCellCoords.value = { ...coords, index }
+			}
+		} catch (e) {
+			console.error(e)
+		}
+	}
+
+	const reset = () => {
 		boardCellsState.value = generateDefaultBoard()
 		startCellCoords.value = {
 			x: 0,
@@ -34,34 +59,15 @@ export const useBoardStore = defineStore("board:store", () => {
 			y: 20,
 			index: 1040
 		}
-	})
-
-	const setCellSetting = (cell: CellData, specialCell: StartOrTargerType | null = null) => {
-		const { coord, index } = cell
-		try {
-			if (!specialCell) {
-				boardCellsState.value[coord.y][coord.x].isBarrier = true
-			}
-
-			if (specialCell === StartOrTargerType.Start && !isEqual(startCellCoords, coord)) {
-				boardCellsState.value[startCellCoords.value.y][startCellCoords.value.x].startOrTarget = null
-				boardCellsState.value[coord.y][coord.x].startOrTarget = StartOrTargerType.Start
-				startCellCoords.value = { ...coord, index }
-			}
-
-			if (specialCell === StartOrTargerType.Target && !isEqual(targetCellCoords, coord)) {
-				boardCellsState.value[targetCellCoords.value.y][targetCellCoords.value.x].startOrTarget = null
-				boardCellsState.value[coord.y][coord.x].startOrTarget = StartOrTargerType.Target
-				targetCellCoords.value = { ...coord, index }
-			}
-		} catch (e) {
-			console.error(e)
-		}
 	}
+
+	onMounted(reset)
 
 	return {
 		startCellCoords,
+		targetCellCoords,
 		boardCellsState,
-		setCellSetting
+		setCellSetting,
+		reset
 	}
 })

@@ -1,9 +1,10 @@
-import { type CellData, StartOrTargerType } from "@/definitions/definitions"
+import type {CellData, CellType} from "@/types"
 
-function isStartOrTargetCell(x: number, y: number ) {
-	if (x === 0 && y === 0) return StartOrTargerType.Start
-	if (x === 40 && y === 20) return StartOrTargerType.Target
-	return null
+
+function getCellType(x: number, y: number ): CellType {
+	if (x === 0 && y === 0) return 'start'
+	if (x === 40 && y === 20) return 'target'
+	return ''
 }
 
 export const generateDefaultBoard = () => {
@@ -13,16 +14,15 @@ export const generateDefaultBoard = () => {
 		const rowData: CellData[] = []
 
 		for(let x = 0; x < 50; x++) {
-			if (isStartOrTargetCell(x,y)) {
-				console.log(index, { x, y }, isStartOrTargetCell(x,y))
+			if (getCellType(x,y)) {
+				console.log(index, { x, y }, getCellType(x,y))
 			}
 			rowData.push({
-				coord: { x, y },
+				coords: { x, y },
 				index,
-				isBarrier: false,
 				isVisited: false,
 				isExpansionProcess: false,
-				startOrTarget: isStartOrTargetCell(x,y)
+				type: getCellType(x,y)
 			})
 
 			index++

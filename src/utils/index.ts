@@ -1,2 +1,2 @@
 export * from "./generateDefaultBoard"
-export * from "./queue"
+export * from "../services/queue.service"
