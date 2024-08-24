@@ -1,28 +1,22 @@
 <script setup lang="ts">
-import "./main.css"
+import BoardView from "./components/BoardView.vue"
+import TheHeader from "@/components/TheHeader.vue"
 
-import MainField from './components/MainField.vue';
-import RadioGroup from "./components/RadioGroup.vue";
-import { ref } from "vue";
-import { CellType } from "./definitions/definitions";
 
-const currentCellType = ref<CellType>(CellType.Empty)
 
 </script>
 
 <template>
-  <div class="main">
-    <RadioGroup 
-      v-model="currentCellType"
-    />
-    <MainField 
-      :currentCellType="currentCellType"
-    />
+  <div class="App">
+    <the-header />
+    <board-view />
   </div>
 </template>
 
 <style scoped>
-.main {
-  position: relative;
+.App {
+  width: 100%;
+  height: 100vh;
 }
+
 </style>
