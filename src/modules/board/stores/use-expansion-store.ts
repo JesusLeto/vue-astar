@@ -9,8 +9,6 @@ export const useExpansionStore = defineStore('expansion:store', () => {
     const boardStore = useBoardStore()
     const { boardCellsState, startCellCoords, targetCellCoords } = storeToRefs(boardStore)
 
-    const isStopped = ref(false)
-
     const isExpansionInProcess = ref(false)
     const isExpansionFinished = ref(false)
 
@@ -22,7 +20,7 @@ export const useExpansionStore = defineStore('expansion:store', () => {
         queue.add(boardCellsState.value[startCellCoords.value.y][startCellCoords.value.x])
         graphRoutes = { [startCellCoords.value.index]: { value: startCellCoords.value } }
 
-        while (!queue.empty() && !isStopped.value) {
+        while (!queue.empty()) {
             const { coords: currentCellCoords } = queue.get() as CellData
             const currentCell = boardCellsState.value[currentCellCoords.y][currentCellCoords.x]
             if (currentCell.isVisited) continue
@@ -41,6 +39,8 @@ export const useExpansionStore = defineStore('expansion:store', () => {
 
             computeNeighbour(currentCell)
         }
+
+        isExpansionInProcess.value = false
     }
 
     const computeNeighbour = (cell: CellData) => {
@@ -70,9 +70,11 @@ export const useExpansionStore = defineStore('expansion:store', () => {
                 nieghbour.isExpansionProcess = true
                 queue.add(nieghbour)
 
-                graphRoutes[nieghbour.index] = {
-                    value: nieghbour.coords,
-                    preRouteStepData: graphRoutes[parentIndex],
+                if (!graphRoutes[nieghbour.index]) {
+                    graphRoutes[nieghbour.index] = {
+                        value: nieghbour.coords,
+                        preRouteStepData: graphRoutes[parentIndex],
+                    }
                 }
             }
         })

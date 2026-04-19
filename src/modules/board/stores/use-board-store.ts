@@ -29,13 +29,13 @@ export const useBoardStore = defineStore('board:store', () => {
                 boardCellsState.value[coords.y][coords.x].type = 'barrier'
             }
 
-            if (currentType === 'start' && !isEqual(startCellCoords, coords)) {
+            if (currentType === 'start' && !isEqual(startCellCoords.value, coords)) {
                 boardCellsState.value[startCellCoords.value.y][startCellCoords.value.x].type = ''
                 boardCellsState.value[coords.y][coords.x].type = 'start'
                 startCellCoords.value = { ...coords, index }
             }
 
-            if (currentType === 'target' && !isEqual(targetCellCoords, coords)) {
+            if (currentType === 'target' && !isEqual(targetCellCoords.value, coords)) {
                 boardCellsState.value[targetCellCoords.value.y][targetCellCoords.value.x].type = ''
                 boardCellsState.value[coords.y][coords.x].type = 'target'
                 targetCellCoords.value = { ...coords, index }

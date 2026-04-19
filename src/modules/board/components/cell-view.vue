@@ -18,6 +18,7 @@ const BASE_CLASSES: Record<CellVisualType, string> = {
 }
 
 const ANIMATION_CLASSES: Partial<Record<CellVisualType, string>> = {
+    barrier: 'animate-bounce-in',
     expansion: 'animate-expansion',
     route: 'animate-route scale-[1.0666]',
 }

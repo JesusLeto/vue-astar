@@ -11,6 +11,7 @@
     --color-cell-expansion-100: #41c9e0;
     --grid-template-columns-board: repeat(50, 32px);
     --grid-template-rows-board: repeat(28, 32px);
+    --animate-bounce-in: bounce-in 500ms linear;
     --animate-expansion: expansion-in 1200ms linear;
     --animate-route: route-in 200ms linear;
 }
