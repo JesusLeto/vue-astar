@@ -2,7 +2,7 @@
 import { useExpansionStore } from '@/modules/board'
 import { storeToRefs } from 'pinia'
 import { Loader2 } from 'lucide-vue-next'
-import UiButton from "@/core/components/ui/ui-button.vue";
+import UiButton from '@/core/components/ui/ui-button.vue'
 
 const expansionStore = useExpansionStore()
 const { isExpansionInProcess, isExpansionFinished } = storeToRefs(expansionStore)

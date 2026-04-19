@@ -1,6 +1,6 @@
 import { delay } from '../utils/delay'
 import { computed, ref, watch } from 'vue'
-import { useBoardStore } from './use-board-store'
+import { useBoardStore } from '@/modules/board'
 import { defineStore, storeToRefs } from 'pinia'
 import type { CellData, CoordsData, GraphRouteData, GraphTreeData } from '../types'
 import { QueueState } from '../services/queue.service'

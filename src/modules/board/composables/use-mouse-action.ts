@@ -1,8 +1,9 @@
-import { onMounted, ref } from 'vue'
+import { ref } from 'vue'
+import { useEventListener, useMousePressed } from '@vueuse/core'
 import type { CellData } from '../types'
 
 export const useMouseAction = () => {
-    const isPressMouseButton = ref(false)
+    const { pressed: isPressMouseButton } = useMousePressed()
     const isStartCellMove = ref(false)
     const isTargetCellMove = ref(false)
 
@@ -20,16 +21,12 @@ export const useMouseAction = () => {
     }
 
     function onMouseUp() {
-        isPressMouseButton.value = false
         isStartCellMove.value = false
         isTargetCellMove.value = false
     }
 
-    onMounted(() => {
-        document.addEventListener('mouseleave', () => {
-            onMouseUp()
-        })
-    })
+    useEventListener(document, 'mouseleave', onMouseUp)
+    useEventListener(document, 'mouseup', onMouseUp)
 
     return {
         isPressMouseButton,
