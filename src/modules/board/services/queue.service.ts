@@ -1,4 +1,4 @@
-export const QueueState = <T>() => {
+export const createQueue = <T>() => {
     let data: T[] = []
 
     const get = () => data.shift()

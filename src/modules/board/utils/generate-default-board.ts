@@ -13,9 +13,6 @@ export const generateDefaultBoard = () => {
         const rowData: CellData[] = []
 
         for (let x = 0; x < 50; x++) {
-            if (getCellType(x, y)) {
-                console.log(index, { x, y }, getCellType(x, y))
-            }
             rowData.push({
                 coords: { x, y },
                 index,

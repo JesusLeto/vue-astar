@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia'
-import { onMounted, ref } from 'vue'
+import { ref } from 'vue'
 import { generateDefaultBoard } from '../utils/generate-default-board'
 import type { CellData, CoordsData, CellType } from '../types'
 import { isEqual } from '@/core/lib/is-equal.ts'
 
 export const useBoardStore = defineStore('board:store', () => {
-    const boardCellsState = ref<CellData[][]>([])
+    const boardCellsState = ref<CellData[][]>(generateDefaultBoard())
 
     const startCellCoords = ref<CoordsData & { index: number }>({
         x: 0,
@@ -14,9 +14,9 @@ export const useBoardStore = defineStore('board:store', () => {
     })
 
     const targetCellCoords = ref<CoordsData & { index: number }>({
-        x: 0,
-        y: 0,
-        index: 0,
+        x: 40,
+        y: 20,
+        index: 1040,
     })
 
     const setCellSetting = (cell: CellData, currentType: CellType | null = null) => {
@@ -58,8 +58,6 @@ export const useBoardStore = defineStore('board:store', () => {
             index: 1040,
         }
     }
-
-    onMounted(reset)
 
     return {
         startCellCoords,

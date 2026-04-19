@@ -12,7 +12,7 @@ const props = defineProps<{
 type CellVisualType = 'barrier' | 'expansion' | 'route'
 
 const BASE_CLASSES: Record<CellVisualType, string> = {
-    barrier: 'absolute -top-px -left-px z-100 w-[calc(100%+2px)] h-[calc(100%+2px)] bg-cell-barrier',
+    barrier: 'absolute z-100 w-[calc(100%+2px)] h-[calc(100%+2px)] bg-cell-barrier',
     expansion: 'bg-cell-expansion-100',
     route: 'bg-cell-route',
 }

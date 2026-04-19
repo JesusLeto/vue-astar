@@ -1,9 +1,9 @@
 import { delay } from '../utils/delay'
-import { computed, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { useBoardStore } from '@/modules/board'
 import { defineStore, storeToRefs } from 'pinia'
 import type { CellData, CoordsData, GraphRouteData, GraphTreeData } from '../types'
-import { QueueState } from '../services/queue.service'
+import { createQueue } from '../services/queue.service'
 
 export const useExpansionStore = defineStore('expansion:store', () => {
     const boardStore = useBoardStore()
@@ -12,7 +12,7 @@ export const useExpansionStore = defineStore('expansion:store', () => {
     const isExpansionInProcess = ref(false)
     const isExpansionFinished = ref(false)
 
-    const queue = QueueState<CellData>()
+    const queue = createQueue<CellData>()
     let graphRoutes: GraphTreeData = {}
 
     const onStart = async () => {
@@ -64,15 +64,15 @@ export const useExpansionStore = defineStore('expansion:store', () => {
         checkPossibleNeighbour(possibleNeighbours, index)
     }
 
-    const checkPossibleNeighbour = (nieghboursData: CellData[], parentIndex: number) => {
-        nieghboursData.forEach(nieghbour => {
-            if (!nieghbour.isVisited && nieghbour.type !== 'barrier') {
-                nieghbour.isExpansionProcess = true
-                queue.add(nieghbour)
+    const checkPossibleNeighbour = (neighboursData: CellData[], parentIndex: number) => {
+        neighboursData.forEach(neighbour => {
+            if (!neighbour.isVisited && neighbour.type !== 'barrier') {
+                neighbour.isExpansionProcess = true
+                queue.add(neighbour)
 
-                if (!graphRoutes[nieghbour.index]) {
-                    graphRoutes[nieghbour.index] = {
-                        value: nieghbour.coords,
+                if (!graphRoutes[neighbour.index]) {
+                    graphRoutes[neighbour.index] = {
+                        value: neighbour.coords,
                         preRouteStepData: graphRoutes[parentIndex],
                     }
                 }
@@ -99,8 +99,7 @@ export const useExpansionStore = defineStore('expansion:store', () => {
         isExpansionFinished.value = true
     }
 
-    const isChangedStartOrTargetIndex = computed(() => startCellCoords.value.index + targetCellCoords.value.index)
-    watch(isChangedStartOrTargetIndex, () => {
+    watch(() => [startCellCoords.value.index, targetCellCoords.value.index], () => {
         if (!isExpansionFinished.value) return
         queue.clean()
         boardCellsState.value.forEach(row => {

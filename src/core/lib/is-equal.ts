@@ -1,58 +1,52 @@
-export const isEqual = (first: any, second: any): boolean => {
+export const isEqual = (first: unknown, second: unknown): boolean => {
     if (first === second) {
         return true
     }
     if ((first === undefined || second === undefined || first === null || second === null) && (first || second)) {
         return false
     }
-    const firstType = first?.constructor.name
-    const secondType = second?.constructor.name
+    const firstType = (first as object)?.constructor?.name
+    const secondType = (second as object)?.constructor?.name
     if (firstType !== secondType) {
         return false
     }
     if (firstType === 'Array') {
-        if (first.length !== second.length) {
+        const firstArr = first as unknown[]
+        const secondArr = second as unknown[]
+        if (firstArr.length !== secondArr.length) {
             return false
         }
-        let equal = true
-        for (let i = 0; i < first.length; i++) {
-            if (!isEqual(first[i], second[i])) {
-                equal = false
-                break
+        for (let i = 0; i < firstArr.length; i++) {
+            if (!isEqual(firstArr[i], secondArr[i])) {
+                return false
             }
         }
-        return equal
+        return true
     }
     if (firstType === 'Object') {
-        let equal = true
-        const fKeys = Object.keys(first)
-        const sKeys = Object.keys(second)
+        const firstObj = first as Record<string, unknown>
+        const secondObj = second as Record<string, unknown>
+        const fKeys = Object.keys(firstObj)
+        const sKeys = Object.keys(secondObj)
         if (fKeys.length !== sKeys.length) {
             return false
         }
-        for (let i = 0; i < fKeys.length; i++) {
-            if (first[fKeys[i]] && second[fKeys[i]]) {
-                if (first[fKeys[i]] === second[fKeys[i]]) {
-                    continue
+        for (const key of fKeys) {
+            const fVal = firstObj[key]
+            const sVal = secondObj[key]
+            if (fVal && sVal) {
+                if (fVal === sVal) continue
+                const fValType = (fVal as object).constructor?.name
+                if (fValType === 'Array' || fValType === 'Object') {
+                    if (!isEqual(fVal, sVal)) return false
+                } else if (fVal !== sVal) {
+                    return false
                 }
-                if (
-                    first[fKeys[i]] &&
-                    (first[fKeys[i]].constructor.name === 'Array' || first[fKeys[i]].constructor.name === 'Object')
-                ) {
-                    equal = isEqual(first[fKeys[i]], second[fKeys[i]])
-                    if (!equal) {
-                        break
-                    }
-                } else if (first[fKeys[i]] !== second[fKeys[i]]) {
-                    equal = false
-                    break
-                }
-            } else if ((first[fKeys[i]] && !second[fKeys[i]]) || (!first[fKeys[i]] && second[fKeys[i]])) {
-                equal = false
-                break
+            } else if ((fVal && !sVal) || (!fVal && sVal)) {
+                return false
             }
         }
-        return equal
+        return true
     }
     return first === second
 }
