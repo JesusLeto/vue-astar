@@ -1,22 +1,11 @@
 <script setup lang="ts">
-import BoardView from "./components/BoardView.vue"
-import TheHeader from "@/components/TheHeader.vue"
-
-
-
+import { BoardView } from '@/modules/board'
+import TheHeader from '@/core/components/the-header.vue'
 </script>
 
 <template>
-  <div class="App">
-    <the-header />
-    <board-view />
-  </div>
+    <div class="w-full h-screen">
+        <the-header />
+        <board-view />
+    </div>
 </template>
-
-<style scoped>
-.App {
-  width: 100%;
-  height: 100vh;
-}
-
-</style>

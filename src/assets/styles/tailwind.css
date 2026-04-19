@@ -1,0 +1,27 @@
+@import 'tailwindcss';
+
+/* Project custom theme */
+@theme {
+    --color-table: #aed6dc;
+    --color-cell-barrier: #00154f;
+    --color-cell-route: #fdfe6a;
+    --color-cell-expansion-0: #414974;
+    --color-cell-expansion-60: #4884d6;
+    --color-cell-expansion-80: #42ddcb;
+    --color-cell-expansion-100: #41c9e0;
+    --grid-template-columns-board: repeat(50, 32px);
+    --grid-template-rows-board: repeat(28, 32px);
+}
+
+
+@keyframes bounce-in {
+    0% {
+        transform: scale(0);
+    }
+    50% {
+        transform: scale(1.25);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
