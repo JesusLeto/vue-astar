@@ -11,6 +11,22 @@
     --color-cell-expansion-100: #41c9e0;
     --grid-template-columns-board: repeat(50, 32px);
     --grid-template-rows-board: repeat(28, 32px);
+    --animate-expansion: expansion-in 1200ms linear;
+    --animate-route: route-in 200ms linear;
+}
+
+@keyframes expansion-in {
+    0%   { background-color: #414974; border-radius: 100%; transform: scale(0); }
+    10%  { border-radius: 50%; }
+    60%  { background-color: #4884d6; }
+    75%  { border-radius: 10%; }
+    80%  { background-color: #42ddcb; }
+    100% { background-color: #41c9e0; border-radius: 0; transform: scale(1); }
+}
+
+@keyframes route-in {
+    0%   { transform: scale(0.25); }
+    100% { transform: scale(1); }
 }
 
 @keyframes bounce-in {

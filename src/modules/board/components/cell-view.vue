@@ -9,10 +9,30 @@ const props = defineProps<{
     isExpansion: boolean
 }>()
 
+type CellVisualType = 'barrier' | 'expansion' | 'route'
+
+const BASE_CLASSES: Record<CellVisualType, string> = {
+    barrier: 'absolute -top-px -left-px z-100 w-[calc(100%+2px)] h-[calc(100%+2px)] bg-cell-barrier',
+    expansion: 'bg-cell-expansion-100',
+    route: 'bg-cell-route',
+}
+
+const ANIMATION_CLASSES: Partial<Record<CellVisualType, string>> = {
+    expansion: 'animate-expansion',
+    route: 'animate-route scale-[1.0666]',
+}
+
 const cellStatusStyle = computed(() => {
-    if (props.data.type) return props.data.type
-    if (props.data.isExpansionProcess) return 'expansion'
-    return ''
+    const type: CellVisualType | null =
+        props.data.type === 'barrier' || props.data.type === 'route' ? props.data.type
+        : props.data.isExpansionProcess ? 'expansion'
+        : null
+
+    if (!type) return ''
+
+    const base = BASE_CLASSES[type]
+    const animation = props.isExpansion ? (ANIMATION_CLASSES[type] ?? '') : ''
+    return animation ? `${base} ${animation}` : base
 })
 </script>
 
@@ -27,78 +47,7 @@ const cellStatusStyle = computed(() => {
         <div
             v-else
             class="cell w-full h-full"
-            :class="[cellStatusStyle, isExpansion ? 'with-animation' : '']"
+            :class="cellStatusStyle"
         />
     </div>
 </template>
-
-<style scoped>
-.barrier {
-    position: absolute;
-    top: -1px;
-    left: -1px;
-    z-index: 100;
-    width: calc(100% + 2px);
-    height: calc(100% + 2px);
-    background-color: #00154f;
-}
-
-.barrier.with-animation {
-    animation: bounce-in 500ms linear;
-}
-
-.expansion {
-    background-color: #41c9e0;
-}
-
-.expansion.with-animation {
-    animation-name: expansion-in;
-    animation-duration: 1200ms;
-    animation-timing-function: linear;
-}
-
-.route {
-    background-color: #fdfe6a;
-}
-
-.route.with-animation {
-    transform: scale(1.0666);
-    animation-name: route-in;
-    animation-duration: 200ms;
-    animation-timing-function: linear;
-}
-
-@keyframes expansion-in {
-    0% {
-        background-color: #414974;
-        border-radius: 100%;
-        transform: scale(0);
-    }
-    10% {
-        border-radius: 50%;
-    }
-    60% {
-        background-color: #4884d6;
-    }
-    75% {
-        border-radius: 10%;
-    }
-    80% {
-        background-color: #42ddcb;
-    }
-    100% {
-        background-color: #41c9e0;
-        border-radius: 0;
-        transform: scale(1);
-    }
-}
-
-@keyframes route-in {
-    0% {
-        transform: scale(0.25);
-    }
-    100% {
-        transform: scale(1);
-    }
-}
-</style>
