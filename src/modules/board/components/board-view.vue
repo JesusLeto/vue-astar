@@ -28,12 +28,13 @@ function setCellSetting(data: CellData) {
         @dragstart.prevent
         @drop.prevent
     >
-        <template v-for="row in boardCellsState">
+        <template v-for="(row, rowIndex) in boardCellsState" :key="rowIndex">
             <cell-view
                 v-for="(data, index) in row"
                 :key="index"
                 :data="data"
                 :is-expansion="!isExpansionFinished"
+                :is-dragging="isStartCellMove || isTargetCellMove"
                 @mousedown="() => onMouseAction(data, setCellSetting, true)"
                 @mousemove="() => onMouseAction(data, setCellSetting)"
             />

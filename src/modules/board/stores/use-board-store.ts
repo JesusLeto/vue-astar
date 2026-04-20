@@ -3,21 +3,14 @@ import { ref } from 'vue'
 import { generateDefaultBoard } from '../utils/generate-default-board'
 import type { CellData, CoordsData, CellType } from '../types'
 import { isEqual } from '@/core/lib/is-equal.ts'
+import { START_CELL_COORDS, TARGET_CELL_COORDS } from '../constants'
 
 export const useBoardStore = defineStore('board:store', () => {
     const boardCellsState = ref<CellData[][]>(generateDefaultBoard())
 
-    const startCellCoords = ref<CoordsData & { index: number }>({
-        x: 0,
-        y: 0,
-        index: 0,
-    })
+    const startCellCoords = ref<CoordsData & { index: number }>({ ...START_CELL_COORDS })
 
-    const targetCellCoords = ref<CoordsData & { index: number }>({
-        x: 40,
-        y: 20,
-        index: 1040,
-    })
+    const targetCellCoords = ref<CoordsData & { index: number }>({ ...TARGET_CELL_COORDS })
 
     const setCellSetting = (cell: CellData, currentType: CellType | null = null) => {
         const { coords, index } = cell
@@ -47,16 +40,8 @@ export const useBoardStore = defineStore('board:store', () => {
 
     const reset = () => {
         boardCellsState.value = generateDefaultBoard()
-        startCellCoords.value = {
-            x: 0,
-            y: 0,
-            index: 0,
-        }
-        targetCellCoords.value = {
-            x: 40,
-            y: 20,
-            index: 1040,
-        }
+        startCellCoords.value = { ...START_CELL_COORDS }
+        targetCellCoords.value = { ...TARGET_CELL_COORDS }
     }
 
     return {

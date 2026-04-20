@@ -4,6 +4,7 @@ import { useBoardStore } from '@/modules/board'
 import { defineStore, storeToRefs } from 'pinia'
 import type { CellData, CoordsData, GraphRouteData, GraphTreeData } from '../types'
 import { createQueue } from '../services/queue.service'
+import { BOARD_COLS, BOARD_ROWS } from '../constants'
 
 export const useExpansionStore = defineStore('expansion:store', () => {
     const boardStore = useBoardStore()
@@ -50,10 +51,10 @@ export const useExpansionStore = defineStore('expansion:store', () => {
         if (cellCoords.x - 1 > -1) {
             possibleNeighbours.push(boardCellsState.value[cellCoords.y][cellCoords.x - 1])
         }
-        if (cellCoords.y + 1 < 28) {
+        if (cellCoords.y + 1 < BOARD_ROWS) {
             possibleNeighbours.push(boardCellsState.value[cellCoords.y + 1][cellCoords.x])
         }
-        if (cellCoords.x + 1 < 50) {
+        if (cellCoords.x + 1 < BOARD_COLS) {
             possibleNeighbours.push(boardCellsState.value[cellCoords.y][cellCoords.x + 1])
         }
         if (cellCoords.y - 1 > -1) {
