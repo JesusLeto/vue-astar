@@ -38,6 +38,12 @@ export const useBoardStore = defineStore('board:store', () => {
         }
     }
 
+    const eraseBarrier = (cell: CellData) => {
+        if (cell.type === 'barrier') {
+            boardCellsState.value[cell.coords.y][cell.coords.x].type = ''
+        }
+    }
+
     const reset = () => {
         boardCellsState.value = generateDefaultBoard()
         startCellCoords.value = { ...START_CELL_COORDS }
@@ -49,6 +55,7 @@ export const useBoardStore = defineStore('board:store', () => {
         targetCellCoords,
         boardCellsState,
         setCellSetting,
+        eraseBarrier,
         reset,
     }
 })

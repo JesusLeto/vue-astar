@@ -3,12 +3,12 @@ import { computed } from 'vue'
 
 import UiSvg from '@/core/components/ui/ui-svg.vue'
 import type { CellData } from '../types'
-import {cn} from "@/core/lib/utils.ts";
 
 const props = defineProps<{
     data: CellData
     isExpansion: boolean
     isDragging?: boolean
+    isEraserMode?: boolean
 }>()
 
 type CellVisualType = 'barrier' | 'expansion' | 'route'
@@ -39,12 +39,21 @@ const cellStatusStyle = computed(() => {
 })
 
 const isDragCell = computed(() => props.data.type === 'start' || props.data.type === 'target')
+
+const cursorClass = computed(() => {
+    if (props.isEraserMode || !isDragCell.value) return ''
+    return props.isDragging ? 'cursor-grabbing' : 'cursor-grab'
+})
+
+const barrierEraseHoverClass = computed(() =>
+    props.isEraserMode && props.data.type === 'barrier' ? 'hover:opacity-60' : ''
+)
 </script>
 
 <template>
     <div
         class="flex items-center justify-center w-8 h-8 border border-table relative"
-        :class="cn([(isDragCell ? 'cursor-grab' : ''), (isDragCell && isDragging) ? 'cursor-grabbing' : ''])"
+        :class="cursorClass"
     >
         <ui-svg
             v-if="data.type === 'start' || data.type === 'target'"
@@ -55,7 +64,7 @@ const isDragCell = computed(() => props.data.type === 'start' || props.data.type
         <div
             v-else
             class="cell w-full h-full"
-            :class="cellStatusStyle"
+            :class="[cellStatusStyle, barrierEraseHoverClass]"
         />
     </div>
 </template>
