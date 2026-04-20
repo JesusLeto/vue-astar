@@ -3,8 +3,9 @@ import { ref, watch } from 'vue'
 import { useBoardStore } from '@/modules/board'
 import { defineStore, storeToRefs } from 'pinia'
 import type { CellData, CoordsData, GraphRouteData, GraphTreeData } from '../types'
-import { createQueue } from '../services/queue.service'
 import { BOARD_COLS, BOARD_ROWS } from '../constants'
+import { bfsAlgorithm } from '../algorithms/bfs.algorithm'
+import type { PathfindingAlgorithm, PathfindingFrontier } from '../algorithms'
 
 export const useExpansionStore = defineStore('expansion:store', () => {
     const boardStore = useBoardStore()
@@ -13,16 +14,25 @@ export const useExpansionStore = defineStore('expansion:store', () => {
     const isExpansionInProcess = ref(false)
     const isExpansionFinished = ref(false)
 
-    const queue = createQueue<CellData>()
+    let algorithm: PathfindingAlgorithm = bfsAlgorithm
+    let frontier: PathfindingFrontier = algorithm.createFrontier()
     let graphRoutes: GraphTreeData = {}
+
+    const setAlgorithm = (newAlgorithm: PathfindingAlgorithm) => {
+        frontier.clean()
+        algorithm = newAlgorithm
+        frontier = algorithm.createFrontier()
+    }
 
     const onStart = async () => {
         isExpansionInProcess.value = true
-        queue.add(boardCellsState.value[startCellCoords.value.y][startCellCoords.value.x])
         graphRoutes = { [startCellCoords.value.index]: { value: startCellCoords.value } }
+        frontier.add(boardCellsState.value[startCellCoords.value.y][startCellCoords.value.x])
 
-        while (!queue.empty()) {
-            const { coords: currentCellCoords } = queue.get() as CellData
+        while (!frontier.empty()) {
+            const cell = frontier.get()
+            if (!cell) break
+            const { coords: currentCellCoords } = cell
             const currentCell = boardCellsState.value[currentCellCoords.y][currentCellCoords.x]
             if (currentCell.isVisited) continue
             if (currentCell.type === 'target') {
@@ -38,13 +48,13 @@ export const useExpansionStore = defineStore('expansion:store', () => {
                 await delay(1)
             }
 
-            computeNeighbour(currentCell)
+            computeNeighbours(currentCell)
         }
 
         isExpansionInProcess.value = false
     }
 
-    const computeNeighbour = (cell: CellData) => {
+    const computeNeighbours = (cell: CellData) => {
         const { coords: cellCoords, index } = cell
         const possibleNeighbours: CellData[] = []
 
@@ -62,14 +72,14 @@ export const useExpansionStore = defineStore('expansion:store', () => {
         }
         if (!possibleNeighbours.length) return
 
-        checkPossibleNeighbour(possibleNeighbours, index)
+        enqueueNeighbours(possibleNeighbours, cell, index)
     }
 
-    const checkPossibleNeighbour = (neighboursData: CellData[], parentIndex: number) => {
+    const enqueueNeighbours = (neighboursData: CellData[], parent: CellData, parentIndex: number) => {
         neighboursData.forEach(neighbour => {
             if (!neighbour.isVisited && neighbour.type !== 'barrier') {
                 neighbour.isExpansionProcess = true
-                queue.add(neighbour)
+                algorithm.enqueueNeighbor(frontier, neighbour, parent, targetCellCoords.value)
 
                 if (!graphRoutes[neighbour.index]) {
                     graphRoutes[neighbour.index] = {
@@ -102,7 +112,7 @@ export const useExpansionStore = defineStore('expansion:store', () => {
 
     watch(() => [startCellCoords.value.index, targetCellCoords.value.index], () => {
         if (!isExpansionFinished.value) return
-        queue.clean()
+        frontier.clean()
         boardCellsState.value.forEach(row => {
             row.forEach(cell => {
                 cell.isExpansionProcess = false
@@ -115,7 +125,7 @@ export const useExpansionStore = defineStore('expansion:store', () => {
 
     const onReset = () => {
         isExpansionFinished.value = false
-        queue.clean()
+        frontier.clean()
         boardStore.reset()
     }
 
@@ -124,5 +134,6 @@ export const useExpansionStore = defineStore('expansion:store', () => {
         isExpansionInProcess,
         isExpansionFinished,
         onReset,
+        setAlgorithm,
     }
 })
