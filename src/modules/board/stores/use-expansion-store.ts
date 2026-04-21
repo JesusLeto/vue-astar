@@ -3,12 +3,13 @@ import { ref, watch } from 'vue'
 import { useBoardStore } from '@/modules/board'
 import { defineStore, storeToRefs } from 'pinia'
 import type { CellData, CoordsData, GraphRouteData, GraphTreeData } from '../types'
-import { BOARD_COLS, BOARD_ROWS } from '../constants'
 import { bfsAlgorithm } from '../algorithms/bfs.algorithm'
 import type { PathfindingAlgorithm, PathfindingFrontier } from '../algorithms'
+import { useBoardSettingsStore } from './use-board-settings-store'
 
 export const useExpansionStore = defineStore('expansion:store', () => {
     const boardStore = useBoardStore()
+    const settingsStore = useBoardSettingsStore()
     const { boardCellsState, startCellCoords, targetCellCoords } = storeToRefs(boardStore)
 
     const isExpansionInProcess = ref(false)
@@ -61,10 +62,10 @@ export const useExpansionStore = defineStore('expansion:store', () => {
         if (cellCoords.x - 1 > -1) {
             possibleNeighbours.push(boardCellsState.value[cellCoords.y][cellCoords.x - 1])
         }
-        if (cellCoords.y + 1 < BOARD_ROWS) {
+        if (cellCoords.y + 1 < settingsStore.rows) {
             possibleNeighbours.push(boardCellsState.value[cellCoords.y + 1][cellCoords.x])
         }
-        if (cellCoords.x + 1 < BOARD_COLS) {
+        if (cellCoords.x + 1 < settingsStore.cols) {
             possibleNeighbours.push(boardCellsState.value[cellCoords.y][cellCoords.x + 1])
         }
         if (cellCoords.y - 1 > -1) {

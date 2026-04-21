@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { useExpansionStore, useEraserStore } from '@/modules/board'
-import { bfsAlgorithm } from '@/modules/board'
+import { useExpansionStore, useEraserStore, useBoardSettingsStore, COLS_MIN, COLS_MAX, ROWS_MIN, ROWS_MAX } from '@/modules/board'
+import { bfsAlgorithm, astarAlgorithm } from '@/modules/board'
 import { storeToRefs } from 'pinia'
 import { Loader2 } from 'lucide-vue-next'
 import UiButton from '@/core/components/ui/ui-button.vue'
@@ -15,11 +15,20 @@ const { isExpansionInProcess, isExpansionFinished } = storeToRefs(expansionStore
 const eraserStore = useEraserStore()
 const { isEraserMode } = storeToRefs(eraserStore)
 
+const settingsStore = useBoardSettingsStore()
+
+const colsInput = ref(settingsStore.cols)
+const rowsInput = ref(settingsStore.rows)
+
 const algorithmMap: Record<string, PathfindingAlgorithm> = {
     bfs: bfsAlgorithm,
+    astar: astarAlgorithm,
 }
 
-const algorithmOptions = [{ value: 'bfs', label: 'BFS' }] as const satisfies readonly SelectOption[]
+const algorithmOptions = [
+    { value: 'bfs', label: 'BFS' },
+    { value: 'astar', label: 'A*' },
+] as const satisfies readonly SelectOption[]
 
 const selectedAlgorithm = ref<string>('bfs')
 
@@ -34,6 +43,22 @@ watch(isExpansionInProcess, (inProcess) => {
     if (inProcess) eraserStore.deactivateEraserMode()
 })
 
+function clamp(value: number, min: number, max: number) {
+    return Math.max(min, Math.min(max, value))
+}
+
+function applyGridSize() {
+    const newCols = clamp(colsInput.value, COLS_MIN, COLS_MAX)
+    const newRows = clamp(rowsInput.value, ROWS_MIN, ROWS_MAX)
+    colsInput.value = newCols
+    rowsInput.value = newRows
+    if (newCols === settingsStore.cols && newRows === settingsStore.rows) return
+    settingsStore.cols = newCols
+    settingsStore.rows = newRows
+    eraserStore.deactivateEraserMode()
+    expansionStore.onReset()
+}
+
 function handleReset() {
     eraserStore.deactivateEraserMode()
     expansionStore.onReset()
@@ -47,6 +72,30 @@ function handleStart() {
 
 <template>
     <div class="h-20 w-full flex items-center justify-center gap-4">
+        <label class="flex items-center gap-2 text-sm font-medium text-slate-700">
+            Столбцы
+            <input
+                v-model.number="colsInput"
+                type="number"
+                :min="COLS_MIN"
+                :max="COLS_MAX"
+                :disabled="isExpansionInProcess"
+                class="w-16 h-10 rounded-md border border-slate-200 bg-white px-2 text-sm text-center ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                @change="applyGridSize"
+            />
+        </label>
+        <label class="flex items-center gap-2 text-sm font-medium text-slate-700">
+            Строки
+            <input
+                v-model.number="rowsInput"
+                type="number"
+                :min="ROWS_MIN"
+                :max="ROWS_MAX"
+                :disabled="isExpansionInProcess"
+                class="w-16 h-10 rounded-md border border-slate-200 bg-white px-2 text-sm text-center ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                @change="applyGridSize"
+            />
+        </label>
         <ui-select
             v-model="selectedAlgorithm"
             :options="algorithmOptions"

@@ -1,16 +1,26 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { generateDefaultBoard } from '../utils/generate-default-board'
+import { generateDefaultBoard, getDefaultCoords } from '../utils/generate-default-board'
 import type { CellData, CoordsData, CellType } from '../types'
 import { isEqual } from '@/core/lib/is-equal.ts'
-import { START_CELL_COORDS, TARGET_CELL_COORDS } from '../constants'
+import { useBoardSettingsStore } from './use-board-settings-store'
 
 export const useBoardStore = defineStore('board:store', () => {
-    const boardCellsState = ref<CellData[][]>(generateDefaultBoard())
+    const settingsStore = useBoardSettingsStore()
 
-    const startCellCoords = ref<CoordsData & { index: number }>({ ...START_CELL_COORDS })
+    const makeDefaultCoords = () => getDefaultCoords(settingsStore.cols, settingsStore.rows)
 
-    const targetCellCoords = ref<CoordsData & { index: number }>({ ...TARGET_CELL_COORDS })
+    const { startCoords: initStart, targetCoords: initTarget } = makeDefaultCoords()
+
+    const startCellCoords = ref<CoordsData & { index: number }>({ ...initStart, index: 0 })
+    const targetCellCoords = ref<CoordsData & { index: number }>({
+        ...initTarget,
+        index: initTarget.y * settingsStore.cols + initTarget.x,
+    })
+
+    const boardCellsState = ref<CellData[][]>(
+        generateDefaultBoard(settingsStore.cols, settingsStore.rows, initStart, initTarget),
+    )
 
     const setCellSetting = (cell: CellData, currentType: CellType | null = null) => {
         const { coords, index } = cell
@@ -45,9 +55,18 @@ export const useBoardStore = defineStore('board:store', () => {
     }
 
     const reset = () => {
-        boardCellsState.value = generateDefaultBoard()
-        startCellCoords.value = { ...START_CELL_COORDS }
-        targetCellCoords.value = { ...TARGET_CELL_COORDS }
+        const { startCoords, targetCoords } = makeDefaultCoords()
+        startCellCoords.value = { ...startCoords, index: 0 }
+        targetCellCoords.value = {
+            ...targetCoords,
+            index: targetCoords.y * settingsStore.cols + targetCoords.x,
+        }
+        boardCellsState.value = generateDefaultBoard(
+            settingsStore.cols,
+            settingsStore.rows,
+            startCoords,
+            targetCoords,
+        )
     }
 
     return {

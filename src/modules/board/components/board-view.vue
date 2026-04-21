@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import CellView from './cell-view.vue'
 import { useBoardStore, useEraserStore } from '@/modules/board'
 import { storeToRefs } from 'pinia'
 import type { CellData } from '../types'
 import { useExpansionStore } from '@/modules/board'
 import { useMouseAction } from '@/modules/board'
+import { useBoardSettingsStore } from '../stores/use-board-settings-store'
 
 const boardStore = useBoardStore()
 const { boardCellsState } = storeToRefs(boardStore)
@@ -14,6 +16,12 @@ const { isExpansionInProcess, isExpansionFinished } = storeToRefs(expansionStore
 
 const { onMouseAction, onMouseUp, isStartCellMove, isTargetCellMove, isPressMouseButton } = useMouseAction()
 const { isEraserMode } = storeToRefs(useEraserStore())
+
+const settingsStore = useBoardSettingsStore()
+const gridStyle = computed(() => ({
+    gridTemplateColumns: `repeat(${settingsStore.cols}, 32px)`,
+    gridTemplateRows: `repeat(${settingsStore.rows}, 32px)`,
+}))
 
 function setCellSetting(data: CellData) {
     if (isExpansionInProcess.value || (data.type && data.type !== 'route')) return
@@ -45,8 +53,9 @@ function onCellMousemove(data: CellData) {
 
 <template>
     <div
-        class="grid grid-cols-board grid-rows-board gap-0 border border-table mx-auto h-fit w-fit select-none"
+        class="grid gap-0 border border-table mx-auto h-fit w-fit select-none"
         :class="isEraserMode ? 'cursor-crosshair' : ''"
+        :style="gridStyle"
         @mouseup="onMouseUp"
         @dragstart.prevent
         @drop.prevent
