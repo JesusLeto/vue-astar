@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useExpansionStore, useEraserStore, useBoardSettingsStore, COLS_MIN, COLS_MAX, ROWS_MIN, ROWS_MAX } from '@/modules/board'
 import { bfsAlgorithm, astarAlgorithm } from '@/modules/board'
 import { storeToRefs } from 'pinia'
@@ -8,6 +10,10 @@ import UiButton from '@/core/components/ui/ui-button.vue'
 import UiSelect from '@/core/components/ui/ui-select.vue'
 import type { SelectOption } from '@/core/components/ui/ui-select.vue'
 import type { PathfindingAlgorithm } from '@/modules/board'
+import { SUPPORTED_LOCALES, type Locale } from '@/core/i18n'
+
+const { t, locale } = useI18n()
+const router = useRouter()
 
 const expansionStore = useExpansionStore()
 const { isExpansionInProcess, isExpansionFinished } = storeToRefs(expansionStore)
@@ -31,6 +37,13 @@ const algorithmOptions = [
 ] as const satisfies readonly SelectOption[]
 
 const selectedAlgorithm = ref<string>('bfs')
+
+const localeOptions = SUPPORTED_LOCALES.map(l => ({ value: l, label: l.toUpperCase() })) satisfies SelectOption[]
+
+const selectedLocale = computed<Locale>({
+    get: () => locale.value as Locale,
+    set: (value) => router.push(`/${value}`),
+})
 
 watch(selectedAlgorithm, (value) => {
     const algorithm = algorithmMap[value]
@@ -73,7 +86,7 @@ function handleStart() {
 <template>
     <div class="h-20 w-full flex items-center justify-center gap-4">
         <label class="flex items-center gap-2 text-sm font-medium text-slate-700">
-            Столбцы
+            {{ t('columns') }}
             <input
                 v-model.number="colsInput"
                 type="number"
@@ -85,7 +98,7 @@ function handleStart() {
             />
         </label>
         <label class="flex items-center gap-2 text-sm font-medium text-slate-700">
-            Строки
+            {{ t('rows') }}
             <input
                 v-model.number="rowsInput"
                 type="number"
@@ -105,7 +118,7 @@ function handleStart() {
             :disabled="isExpansionInProcess"
             @click="handleReset"
         >
-            Сбросить
+            {{ t('reset') }}
         </ui-button>
         <ui-button
             v-if="!isExpansionFinished"
@@ -114,7 +127,7 @@ function handleStart() {
             :disabled="isExpansionInProcess"
             @click="eraserStore.toggleEraserMode"
         >
-            Ластик
+            {{ t('eraser') }}
         </ui-button>
         <ui-button
             v-if="!isExpansionFinished"
@@ -127,7 +140,11 @@ function handleStart() {
                 v-if="isExpansionInProcess"
                 class="h-4 w-4 animate-spin"
             />
-            {{ isExpansionInProcess ? 'Построение маршрута' : 'Старт' }}
+            {{ isExpansionInProcess ? t('buildingRoute') : t('start') }}
         </ui-button>
+        <ui-select
+            v-model="selectedLocale"
+            :options="localeOptions"
+        />
     </div>
 </template>
