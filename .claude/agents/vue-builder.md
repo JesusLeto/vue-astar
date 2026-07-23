@@ -113,7 +113,7 @@ Ids in use: `'board:store'`, `'board-settings:store'`, `'expansion:store'`, `'er
 - Invariants are enforced centrally in the store with early returns, not at call sites — every board mutator starts with an `isProtectedCell(cell)` guard (`use-board-store.ts:12-13`).
 - Tuning constants are module-level `const` / `Record<Union, T>` maps at the top of the consuming store, never inline magic numbers — `VISIT_DELAYS`, `ROUTE_DELAY` in `use-expansion-store.ts:11-17`; `CELL_WEIGHT` in `src/modules/board/constants.ts`.
 
-Note: `src/modules/board/constants.ts` also exports `BOARD_COLS`, `BOARD_ROWS`, `START_CELL_COORDS`, `TARGET_CELL_COORDS`, which have **no importers**. The live grid defaults are `cols = ref(50)` / `rows = ref(28)` in `src/modules/board/stores/use-board-settings-store.ts:10-11`, bounds `COLS_MIN=10, COLS_MAX=80, ROWS_MIN=5, ROWS_MAX=40` are module-level exports of that same file, and start/target come from `getDefaultCoords(cols, rows)` in `src/modules/board/utils/generate-default-board.ts`. Editing `constants.ts` will not move the rendered board.
+Note: `src/modules/board/constants.ts` exports exactly one symbol, `CELL_WEIGHT` — do not look there for board defaults. The live grid defaults are `cols = ref(50)` / `rows = ref(28)` in `src/modules/board/stores/use-board-settings-store.ts:10-11`, bounds `COLS_MIN=10, COLS_MAX=80, ROWS_MIN=5, ROWS_MAX=40` are module-level exports of that same file, and start/target come from `getDefaultCoords(cols, rows)` in `src/modules/board/utils/generate-default-board.ts`.
 
 ## Composables
 
@@ -123,9 +123,9 @@ Note: `src/modules/board/constants.ts` also exports `BOARD_COLS`, `BOARD_ROWS`, 
 
 ## Styling — Tailwind v4
 
-- Tailwind v4 is CSS-first. All design tokens live in the `@theme` block of `src/assets/styles/tailwind.css`: `--color-table`, `--color-cell-barrier`, `--color-cell-route`, `--color-cell-expansion-{0,60,80,100}`, plus `--grid-template-columns-board` / `--grid-template-rows-board`.
+- Tailwind v4 is CSS-first. All design tokens live in the `@theme` block of `src/assets/styles/tailwind.css`: `--color-table`, `--color-cell-barrier`, `--color-cell-route`, `--color-cell-expansion-{0,60,80,100}`.
 - Root `tailwind.config.ts` holds only `{ content, plugins }`. There is **no** `safelist` and **no** `theme` there, and `tailwind.css` has no `@config` directive — so that file is inert for styling. Never add a safelist.
-- The two `--grid-template-*-board` tokens are dead: the board grid is built from an inline computed style, `gridTemplateColumns: \`repeat(${settingsStore.cols}, 32px)\`` bound as `:style="gridStyle"` (`src/modules/board/components/board-view.vue:30-33`, `:71`). Dynamic, user-configurable dimensions are the one sanctioned use of inline styles.
+- There are no grid-template tokens: the board grid is built from an inline computed style, `gridTemplateColumns: \`repeat(${settingsStore.cols}, 32px)\`` bound as `:style="gridStyle"` (`src/modules/board/components/board-view.vue:30-33`, `:71`). Dynamic, user-configurable dimensions are the one sanctioned use of inline styles.
 - Never hardcode a hex color in a component. Use the generated utilities (`bg-cell-barrier`, `bg-cell-route`, `border-table`) or `var(--color-...)` inside a scoped style.
 - **Dynamic classes must be complete literal strings in a module-level `Record<Union, string>`**, never assembled by concatenation, so the v4 content scanner can see them — `BASE_CLASSES` / `ANIMATION_CLASSES` in `src/modules/board/components/cell-view.vue:18-28`, joined by a `computed`.
 - `<style scoped>` exists in exactly one file, `cell-view.vue:91-150`, and contains only `@keyframes` plus their `.animate-*` classes, which reference `@theme` vars via `var(--color-cell-expansion-60)`. Keep it that way: scoped styles are for keyframes/animation classes only; everything else is utilities.

@@ -61,7 +61,7 @@ Run in this order after any change under `src/`. All four must pass before the w
 - Type-only imports must be marked `import type` (enforced by oxlint).
 
 ## Board Rules
-- `CELL_WEIGHT` in `src/modules/board/constants.ts` is the only live constant there. `BOARD_COLS`, `BOARD_ROWS`, `START_CELL_COORDS`, `TARGET_CELL_COORDS` are unreferenced — editing them changes nothing.
+- `CELL_WEIGHT` is the only export of `src/modules/board/constants.ts`. Board defaults do not live there — do not add them back.
 - Live grid size is `cols = ref(50)` / `rows = ref(28)` in `src/modules/board/stores/use-board-settings-store.ts`; size bounds `COLS_MIN=10`, `COLS_MAX=80`, `ROWS_MIN=5`, `ROWS_MAX=40` are exported from the same file.
 - Live start/target positions are computed by `getDefaultCoords(cols, rows)` in `src/modules/board/utils/generate-default-board.ts`.
 - The grid is stored as `CellData[][]` (`cells[y][x]`); algorithms work on flat indices `y * cols + x`.

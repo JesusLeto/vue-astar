@@ -39,7 +39,7 @@
 - `utils/maze-generators.ts` — 6 паттернов, `generateMazePattern` (`:228`), `addPatternCell` со щитом от protected/дублей (`:23-35`).
 - `utils/generate-default-board.ts` — `generateDefaultBoard` (`:9-26`) и `getDefaultCoords` (`:28-38`).
 - `utils/delay.ts` — однострочный `delay(time)`.
-- `constants.ts` — `BOARD_COLS`, `BOARD_ROWS`, `START_CELL_COORDS`, `TARGET_CELL_COORDS`, `CELL_WEIGHT = 15`.
+- `constants.ts` — единственный экспорт `CELL_WEIGHT = 15`.
 
 ## Решённые вопросы
 
@@ -59,7 +59,7 @@
 - Анимация — это САМ последовательный цикл `for (const coords of ...) { мутация клетки; await delay(...) }` в `use-expansion-store.ts:42-50` и `:52-59`. Vue перерисовывает между await'ами. Замена на батч-мутацию или `Promise.all` уничтожит визуализацию. Это и есть правило AGENTS.md «сохранять поток `delay()`».
 - Флаг `instant` пропускает ВСЕ задержки (`use-expansion-store.ts:48`, `:57`) и нужен watcher'у мгновенного пересчёта при перетаскивании start/target/bomb (`:93-99`). Ломая `instant`, ломаешь drag-to-recompute.
 - `onStart` защищён от повторного входа через `isExpansionInProcess` (`:69`). Любая новая точка запуска должна уважать этот флаг.
-- `constants.ts` вводит в заблуждение: реально импортируется ТОЛЬКО `CELL_WEIGHT` (`use-board-store.ts:4`). `BOARD_COLS`, `BOARD_ROWS`, `START_CELL_COORDS`, `TARGET_CELL_COORDS` — мёртвые (ноль импортёров). Живой размер сетки — `ref(50)`/`ref(28)` в `use-board-settings-store.ts:10-11`; живые старт/цель — `getDefaultCoords(cols, rows)` (`generate-default-board.ts:28-38`), что при 50x28 даёт старт (12,14) и цель (37,14), а вовсе не `START_CELL_COORDS`/`TARGET_CELL_COORDS`. Правка `constants.ts` не изменит отрисованную доску.
+- `constants.ts` содержит только `CELL_WEIGHT` (`use-board-store.ts:4`) — не искать там дефолты доски. Живой размер сетки — `ref(50)`/`ref(28)` в `use-board-settings-store.ts:10-11`; живые старт/цель — `getDefaultCoords(cols, rows)` (`generate-default-board.ts:28-38`), что при 50x28 даёт старт (12,14) и цель (37,14). Мёртвые `BOARD_COLS`/`BOARD_ROWS`/`START_CELL_COORDS`/`TARGET_CELL_COORDS` удалены.
 - `use-board-settings-store.ts` НЕ клампит `cols`/`rows` — он отдаёт голые рефы (`:13`). Клампинг живёт в UI: `clamp` + `applyGridSize` в `the-header.vue:104-118`. Меняя границы, правь `COLS_MIN`/`COLS_MAX`/`ROWS_MIN`/`ROWS_MAX` в сторе — хедер их импортирует через бочонок (`src/modules/board/index.ts:5`).
 - `src/modules/board/types/graph.types.ts` (`GraphRouteData`, `GraphTreeData`) реэкспортируется, но НЕ используется ни одним алгоритмом: `search.ts` работает на плоских массивах `previous: Array<number | null>`. Не строить на нём новую логику, не спросив.
 - `src/modules/board/composables/use-eraser-mode.ts` — мёртвый код (ноль импортёров), заменён `use-eraser-store.ts`.

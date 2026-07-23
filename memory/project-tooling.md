@@ -101,7 +101,7 @@
 ## Tailwind CSS v4
 
 - Подключается **плагином Vite** `@tailwindcss/vite`, а не через PostCSS-пайплайн.
-- CSS-first: `src/assets/styles/tailwind.css` — это `@import 'tailwindcss'` плюс блок `@theme` с девятью токенами (`:4-14`): `--color-table`, `--color-cell-barrier`, `--color-cell-route`, `--color-cell-expansion-{0,60,80,100}`, `--grid-template-columns-board`, `--grid-template-rows-board`. Последние два не используются нигде.
+- CSS-first: `src/assets/styles/tailwind.css` — это `@import 'tailwindcss'` плюс блок `@theme` с семью цветовыми токенами (`:4-12`): `--color-table`, `--color-cell-barrier`, `--color-cell-route`, `--color-cell-expansion-{0,60,80,100}`. Grid-токенов там больше нет — сетка строится инлайновым `:style` в `board-view.vue:30-33`.
 - Директив `@config`, `@source`, `@plugin` в файле нет.
 - **`tailwind.config.ts` инертен.** Он содержит только `{ content, plugins } satisfies Config`; ни `theme`, ни `safelist` в нём нет, и без `@config` Tailwind v4 его не загружает. Любое утверждение вида «добавь класс в `safelist` в `tailwind.config.js`» — устаревшее.
 - Приём вместо safelist: полные строки классов лежат литералами в `Record`-таблицах (`src/modules/board/components/cell-view.vue:18-28`), чтобы сканер контента их увидел. Анимационные классы (`animate-bounce-in`, `animate-route`, `animate-expansion`) вообще не утилиты Tailwind — они написаны руками в `<style scoped>` (`cell-view.vue:91-150`).

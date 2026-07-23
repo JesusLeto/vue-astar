@@ -42,7 +42,7 @@
 
 ## Решённые вопросы
 
-- Сетка доски рисуется inline-стилем, а не Tailwind-классом: `board-view.vue:30-33` строит `repeat(${settingsStore.cols}, 32px)` и биндит `:style="gridStyle"` на `:71`. Это осознанное решение, т.к. размер сетки настраивается пользователем. Токены `--grid-template-columns-board` / `--grid-template-rows-board` (`tailwind.css:12-13`) — мёртвый остаток старой фиксированной доски 50x28, нигде не используются.
+- Сетка доски рисуется inline-стилем, а не Tailwind-классом: `board-view.vue:30-33` строит `repeat(${settingsStore.cols}, 32px)` и биндит `:style="gridStyle"` на `:71`. Это осознанное решение, т.к. размер сетки настраивается пользователем. Токены `--grid-template-columns-board` / `--grid-template-rows-board` были остатком старой фиксированной доски 50x28 и удалены — не возвращать их.
 - Размер клетки зафиксирован 32px в двух местах: `board-view.vue:31-32` (`repeat(..., 32px)`) и `cell-view.vue:63` (`w-8 h-8`). Менять надо синхронно.
 - Анимации клетки написаны руками в `<style scoped>` (`cell-view.vue:91-150`), а не Tailwind-утилитами: `bounce-in` 500ms (стена), `route-in` 200ms + `transform: scale(1.0666)` (маршрут), `expansion-in` 1200ms (волна). Keyframes читают токены темы напрямую: `var(--color-cell-expansion-0|60|80|100)` (`:124-141`).
 - Динамические классы клетки хранятся ЦЕЛЫМИ строковыми литералами в `Record`-таблицах (`cell-view.vue:18-28`), чтобы сканер Tailwind v4 их видел. Не собирать классы конкатенацией.

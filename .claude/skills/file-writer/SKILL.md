@@ -171,8 +171,6 @@ import { BrickWall } from 'lucide-vue-next'
     --color-cell-expansion-60: #4884d6;
     --color-cell-expansion-80: #42ddcb;
     --color-cell-expansion-100: #41c9e0;
-    --grid-template-columns-board: repeat(50, 32px);
-    --grid-template-rows-board: repeat(28, 32px);
 }
 ```
 
@@ -188,8 +186,8 @@ import { BrickWall } from 'lucide-vue-next'
   `bg-cell-route`, `border-table` (`cell-view.vue:19-21`, `:63`).
 - Внутри `<style scoped>` тот же токен доступен как обычная CSS-переменная:
   `background-color: var(--color-cell-expansion-60)` (`cell-view.vue:132`).
-- `--grid-template-columns-board` / `--grid-template-rows-board` — мёртвые:
-  сетка строится инлайновым `:style`, см. ниже.
+- Grid-токенов в `@theme` нет и добавлять их не нужно: сетка строится
+  инлайновым `:style`, см. ниже.
 
 ### Динамические классы — записывай целыми строковыми литералами
 

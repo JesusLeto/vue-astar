@@ -63,9 +63,9 @@ export interface CellData {                                        // :9-17
 
 Визуальный размер ячейки — 32px, зашит в `gridStyle` в `board-view.vue:30-33` (`repeat(${cols}, 32px)`) и в утилиты `w-8 h-8` в `cell-view.vue:63`.
 
-### Мёртвые константы
+### constants.ts
 
-`src/modules/board/constants.ts` также экспортирует `BOARD_COLS = 50`, `BOARD_ROWS = 28`, `START_CELL_COORDS = { x: 0, y: 0, index: 0 }`, `TARGET_CELL_COORDS = { x: 40, y: 20, index: 1040 }`. **Ни один из них никуда не импортируется.** Размер доски дублирует `use-board-settings-store.ts` без импорта, а координаты вообще не совпадают с реальными дефолтами (`(12,14)` / `(37,14)`). Правка `constants.ts` (кроме `CELL_WEIGHT`) на поведение приложения не влияет.
+`src/modules/board/constants.ts` экспортирует ровно один символ — `CELL_WEIGHT = 15`. Дефолтов доски там нет: размер живёт в `use-board-settings-store.ts`, координаты старта/цели вычисляет `getDefaultCoords()` (реальные дефолты при 50x28 — `(12,14)` / `(37,14)`). Ранее файл нёс мёртвые `BOARD_COLS`/`BOARD_ROWS`/`START_CELL_COORDS`/`TARGET_CELL_COORDS` без импортёров — они удалены, не возвращать.
 
 ## Алгоритмы
 
@@ -204,7 +204,5 @@ export function generateMazePattern(
 
 - `src/modules/board/composables/use-eraser-mode.ts` — `useEraserMode` не импортируется нигде; вытеснен `useEraserStore`.
 - `src/modules/board/types/graph.types.ts` (`GraphRouteData`, `GraphTreeData`) — реэкспортируется по всей цепочке barrel'ов, но ни один алгоритм и ни один стор его не использует; `search.ts` работает на плоских `Array<number | null>`.
-- `BOARD_COLS`, `BOARD_ROWS`, `START_CELL_COORDS`, `TARGET_CELL_COORDS` в `constants.ts` — без импортёров.
-- `--grid-template-columns-board` / `--grid-template-rows-board` в `src/assets/styles/tailwind.css:12-13` — токены не используются, сетка строится инлайн-стилем в `board-view.vue:30-33`.
 - Класс `cell` в `cell-view.vue:79` — CSS-правила `.cell` нет ни в scoped-блоке, ни в `tailwind.css`.
 - `src/modules/board/services/` — пустая директория, файлов `*.service.ts` в проекте нет.

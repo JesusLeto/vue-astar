@@ -9,6 +9,4 @@
     --color-cell-expansion-60: #4884d6;
     --color-cell-expansion-80: #42ddcb;
     --color-cell-expansion-100: #41c9e0;
-    --grid-template-columns-board: repeat(50, 32px);
-    --grid-template-rows-board: repeat(28, 32px);
 }

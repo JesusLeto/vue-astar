@@ -133,5 +133,5 @@ If a finding spans owners, name the primary owner and state the handoff.
 
 - You have Bash, but use it read-only: `git`, `grep`, `npm run <gate>`. Never edit, stage, commit, or push.
 - Never claim a command's result without running it and quoting the output.
-- Distinguish **new defects** from **pre-existing debt**. Known pre-existing items you should mention at most once, as informational, never as blockers: the unused `BOARD_COLS`/`BOARD_ROWS`/`START_CELL_COORDS`/`TARGET_CELL_COORDS` in `src/modules/board/constants.ts`; the dead `use-eraser-mode.ts` composable; the unused `--grid-template-*-board` theme tokens; the unused `graph.types.ts`; the untranslated `recursiveDivision`/`verticalDivision`/`horizontalDivision` values in `ru.ts`; `board-view.vue` importing from its own barrel.
+- Distinguish **new defects** from **pre-existing debt**. Known pre-existing items you should mention at most once, as informational, never as blockers: the dead `use-eraser-mode.ts` composable; the unused `graph.types.ts`; the untranslated `recursiveDivision`/`verticalDivision`/`horizontalDivision` values in `ru.ts`; `board-view.vue` importing from its own barrel.
 - Be concise and specific. A finding without a file:line and a concrete fix is not a finding.
