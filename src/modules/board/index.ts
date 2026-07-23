@@ -3,8 +3,19 @@ export { useExpansionStore } from './stores/use-expansion-store'
 export { useMouseAction } from './composables/use-mouse-action'
 export { useEraserStore } from './stores/use-eraser-store'
 export { useBoardSettingsStore, COLS_MIN, COLS_MAX, ROWS_MIN, ROWS_MAX } from './stores/use-board-settings-store'
-export type { CellData, CellType, CoordsData, GraphRouteData, GraphTreeData } from './types'
-export type { PathfindingAlgorithm, PathfindingFrontier } from './algorithms'
-export { bfsAlgorithm, astarAlgorithm } from './algorithms'
+export type { CellData, CellSpecialType, CellType, CoordsData, GraphRouteData, GraphTreeData } from './types'
+export type { MazePattern } from './utils/maze-generators'
+export type { PathfindingAlgorithm, PathfindingAlgorithmId, PathfindingResult } from './algorithms'
+export {
+    astarAlgorithm,
+    bfsAlgorithm,
+    bidirectionalSwarmAlgorithm,
+    convergentSwarmAlgorithm,
+    dfsAlgorithm,
+    dijkstraAlgorithm,
+    greedyAlgorithm,
+    pathfindingAlgorithms,
+    swarmAlgorithm,
+} from './algorithms'
 
 export { default as BoardView } from './components/board-view.vue'

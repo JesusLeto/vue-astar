@@ -1,3 +1,12 @@
-export type { PathfindingAlgorithm, PathfindingFrontier } from './algorithm.types'
-export { bfsAlgorithm } from './bfs.algorithm'
-export { astarAlgorithm } from './astar.algorithm'
+export type { PathfindingAlgorithm, PathfindingAlgorithmId, PathfindingResult } from './algorithm.types'
+export {
+    astarAlgorithm,
+    bfsAlgorithm,
+    bidirectionalSwarmAlgorithm,
+    convergentSwarmAlgorithm,
+    dfsAlgorithm,
+    dijkstraAlgorithm,
+    greedyAlgorithm,
+    pathfindingAlgorithms,
+    swarmAlgorithm,
+} from './search'

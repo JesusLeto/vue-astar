@@ -23,7 +23,7 @@ export const router = createRouter({
     ],
 })
 
-router.beforeEach((to) => {
+router.beforeEach(to => {
     const rawLocale = to.params.locale
     if (typeof rawLocale === 'string' && (SUPPORTED_LOCALES as readonly string[]).includes(rawLocale)) {
         i18n.global.locale.value = rawLocale as Locale

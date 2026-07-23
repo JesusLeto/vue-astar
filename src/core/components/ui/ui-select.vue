@@ -9,6 +9,7 @@ export interface SelectOption {
 
 interface Props {
     options: readonly SelectOption[]
+    disabled?: boolean
 }
 
 defineOptions({ inheritAttrs: false })
@@ -25,6 +26,7 @@ const selectVariants = cva(
     <select
         :value="model"
         :class="cn(selectVariants(), ($attrs.class as string) ?? '')"
+        :disabled="props.disabled"
         @change="(e: Event) => (model = (e.target as HTMLSelectElement)?.value ?? '')"
     >
         <option

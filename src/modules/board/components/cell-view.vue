@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { Bomb, Weight } from 'lucide-vue-next'
 
 import UiSvg from '@/core/components/ui/ui-svg.vue'
 import type { CellData } from '../types'
@@ -9,6 +10,7 @@ const props = defineProps<{
     isExpansion: boolean
     isDragging?: boolean
     isEraserMode?: boolean
+    isWeightMode?: boolean
 }>()
 
 type CellVisualType = 'barrier' | 'expansion' | 'route'
@@ -27,9 +29,11 @@ const ANIMATION_CLASSES: Partial<Record<CellVisualType, string>> = {
 
 const cellStatusStyle = computed(() => {
     const type: CellVisualType | null =
-        props.data.type === 'barrier' || props.data.type === 'route' ? props.data.type
-        : props.data.isExpansionProcess ? 'expansion'
-        : null
+        props.data.type === 'barrier' || props.data.type === 'route'
+            ? props.data.type
+            : props.data.isExpansionProcess
+              ? 'expansion'
+              : null
 
     if (!type) return ''
 
@@ -39,14 +43,18 @@ const cellStatusStyle = computed(() => {
 })
 
 const isDragCell = computed(() => props.data.type === 'start' || props.data.type === 'target')
+const isSpecialCell = computed(
+    () => props.data.type === 'start' || props.data.type === 'target' || props.data.type === 'bomb'
+)
+const isWeighted = computed(() => props.data.weight > 0 && props.data.type !== 'barrier')
 
 const cursorClass = computed(() => {
-    if (props.isEraserMode || !isDragCell.value) return ''
+    if (props.isEraserMode || props.isWeightMode || !isSpecialCell.value) return ''
     return props.isDragging ? 'cursor-grabbing' : 'cursor-grab'
 })
 
-const barrierEraseHoverClass = computed(() =>
-    props.isEraserMode && props.data.type === 'barrier' ? 'hover:opacity-60' : ''
+const eraseHoverClass = computed(() =>
+    props.isEraserMode && (props.data.type === 'barrier' || isWeighted.value) ? 'hover:opacity-60' : ''
 )
 </script>
 
@@ -56,30 +64,41 @@ const barrierEraseHoverClass = computed(() =>
         :class="cursorClass"
     >
         <ui-svg
-            v-if="data.type === 'start' || data.type === 'target'"
+            v-if="isDragCell"
             :name="data.type"
             draggable="false"
+        />
+        <bomb
+            v-else-if="data.type === 'bomb'"
+            class="h-5 w-5 text-red-600"
+            :stroke-width="2.5"
         />
 
         <div
             v-else
-            class="cell w-full h-full"
-            :class="[cellStatusStyle, barrierEraseHoverClass]"
-        />
+            class="cell w-full h-full flex items-center justify-center"
+            :class="[cellStatusStyle, eraseHoverClass]"
+        >
+            <weight
+                v-if="isWeighted"
+                class="h-4 w-4 text-amber-700"
+                :stroke-width="2.4"
+            />
+        </div>
     </div>
 </template>
 
 <style scoped>
 @keyframes bounce-in {
-  0% {
-    transform: scale(0);
-  }
-  50% {
-    transform: scale(1.25);
-  }
-  100% {
-    transform: scale(1);
-  }
+    0% {
+        transform: scale(0);
+    }
+    50% {
+        transform: scale(1.25);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 .animate-bounce-in {
@@ -87,8 +106,12 @@ const barrierEraseHoverClass = computed(() =>
 }
 
 @keyframes route-in {
-  0%   { transform: scale(0.25); }
-  100% { transform: scale(1); }
+    0% {
+        transform: scale(0.25);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 .animate-route {
@@ -97,15 +120,31 @@ const barrierEraseHoverClass = computed(() =>
 }
 
 @keyframes expansion-in {
-  0%   { background-color: var(--color-cell-expansion-0); border-radius: 100%; transform: scale(0); }
-  10%  { border-radius: 50%; }
-  60%  { background-color: var(--color-cell-expansion-60); }
-  75%  { border-radius: 10%; }
-  80%  { background-color: var(--color-cell-expansion-80); }
-  100% { background-color: var(--color-cell-expansion-100); border-radius: 0; transform: scale(1); }
+    0% {
+        background-color: var(--color-cell-expansion-0);
+        border-radius: 100%;
+        transform: scale(0);
+    }
+    10% {
+        border-radius: 50%;
+    }
+    60% {
+        background-color: var(--color-cell-expansion-60);
+    }
+    75% {
+        border-radius: 10%;
+    }
+    80% {
+        background-color: var(--color-cell-expansion-80);
+    }
+    100% {
+        background-color: var(--color-cell-expansion-100);
+        border-radius: 0;
+        transform: scale(1);
+    }
 }
 
 .animate-expansion {
-  animation: expansion-in 1200ms linear;
+    animation: expansion-in 1200ms linear;
 }
 </style>

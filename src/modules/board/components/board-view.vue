@@ -14,8 +14,17 @@ const { boardCellsState } = storeToRefs(boardStore)
 const expansionStore = useExpansionStore()
 const { isExpansionInProcess, isExpansionFinished } = storeToRefs(expansionStore)
 
-const { onMouseAction, onMouseUp, isStartCellMove, isTargetCellMove, isPressMouseButton } = useMouseAction()
-const { isEraserMode } = storeToRefs(useEraserStore())
+const {
+    onMouseAction,
+    onMouseUp,
+    isStartCellMove,
+    isTargetCellMove,
+    isBombCellMove,
+    isPressMouseButton,
+    isWeightKeyPressed,
+    getMovedCellType,
+} = useMouseAction()
+const { isEraserMode, isWeightMode } = storeToRefs(useEraserStore())
 
 const settingsStore = useBoardSettingsStore()
 const gridStyle = computed(() => ({
@@ -24,14 +33,18 @@ const gridStyle = computed(() => ({
 }))
 
 function setCellSetting(data: CellData) {
-    if (isExpansionInProcess.value || (data.type && data.type !== 'route')) return
-    const currentType = isStartCellMove.value ? 'start' : isTargetCellMove.value ? 'target' : null
-    boardStore.setCellSetting(data, currentType)
+    if (isExpansionInProcess.value) return
+    const currentType = getMovedCellType()
+    if (!currentType && data.type && data.type !== 'route') return
+    if (!currentType && isExpansionFinished.value) expansionStore.clearPath()
+    const drawMode = isWeightMode.value || isWeightKeyPressed.value ? 'weight' : 'wall'
+    boardStore.setCellSetting(data, currentType, drawMode)
 }
 
 function eraseCell(data: CellData) {
     if (isExpansionInProcess.value) return
-    boardStore.eraseBarrier(data)
+    if (isExpansionFinished.value) expansionStore.clearPath()
+    boardStore.eraseCell(data)
 }
 
 function onCellMousedown(data: CellData) {
@@ -54,20 +67,24 @@ function onCellMousemove(data: CellData) {
 <template>
     <div
         class="grid gap-0 border border-table mx-auto h-fit w-fit select-none"
-        :class="isEraserMode ? 'cursor-crosshair' : ''"
+        :class="isEraserMode || isWeightMode ? 'cursor-crosshair' : ''"
         :style="gridStyle"
         @mouseup="onMouseUp"
         @dragstart.prevent
         @drop.prevent
     >
-        <template v-for="(row, rowIndex) in boardCellsState" :key="rowIndex">
+        <template
+            v-for="(row, rowIndex) in boardCellsState"
+            :key="rowIndex"
+        >
             <cell-view
                 v-for="(data, index) in row"
                 :key="index"
                 :data="data"
                 :is-expansion="!isExpansionFinished"
-                :is-dragging="isStartCellMove || isTargetCellMove"
+                :is-dragging="isStartCellMove || isTargetCellMove || isBombCellMove"
                 :is-eraser-mode="isEraserMode"
+                :is-weight-mode="isWeightMode || isWeightKeyPressed"
                 @mousedown="() => onCellMousedown(data)"
                 @mousemove="() => onCellMousemove(data)"
             />

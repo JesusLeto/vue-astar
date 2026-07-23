@@ -2,131 +2,109 @@ import { delay } from '../utils/delay'
 import { ref, watch } from 'vue'
 import { useBoardStore } from '@/modules/board'
 import { defineStore, storeToRefs } from 'pinia'
-import type { CellData, CoordsData, GraphRouteData, GraphTreeData } from '../types'
-import { bfsAlgorithm } from '../algorithms/bfs.algorithm'
-import type { PathfindingAlgorithm, PathfindingFrontier } from '../algorithms'
-import { useBoardSettingsStore } from './use-board-settings-store'
+import type { CoordsData } from '../types'
+import type { PathfindingAlgorithm, PathfindingResult } from '../algorithms'
+import { bfsAlgorithm } from '../algorithms'
+
+export type VisualizationSpeed = 'fast' | 'average' | 'slow'
+
+const VISIT_DELAYS: Record<VisualizationSpeed, number> = {
+    fast: 0,
+    average: 100,
+    slow: 500,
+}
+
+const ROUTE_DELAY = 40
 
 export const useExpansionStore = defineStore('expansion:store', () => {
     const boardStore = useBoardStore()
-    const settingsStore = useBoardSettingsStore()
-    const { boardCellsState, startCellCoords, targetCellCoords } = storeToRefs(boardStore)
+    const { boardCellsState, startCellCoords, targetCellCoords, bombCellCoords } = storeToRefs(boardStore)
 
     const isExpansionInProcess = ref(false)
     const isExpansionFinished = ref(false)
-
-    let algorithm: PathfindingAlgorithm = bfsAlgorithm
-    let frontier: PathfindingFrontier = algorithm.createFrontier()
-    let graphRoutes: GraphTreeData = {}
+    const currentAlgorithm = ref<PathfindingAlgorithm>(bfsAlgorithm)
+    const speed = ref<VisualizationSpeed>('fast')
 
     const setAlgorithm = (newAlgorithm: PathfindingAlgorithm) => {
-        frontier.clean()
-        algorithm = newAlgorithm
-        frontier = algorithm.createFrontier()
+        currentAlgorithm.value = newAlgorithm
+        if (!newAlgorithm.supportsBomb) boardStore.removeBomb()
+        if (!newAlgorithm.weighted) boardStore.clearWeights()
+        if (isExpansionFinished.value) {
+            isExpansionFinished.value = false
+            boardStore.clearSearchState()
+        }
     }
 
-    const onStart = async () => {
-        isExpansionInProcess.value = true
-        graphRoutes = { [startCellCoords.value.index]: { value: startCellCoords.value } }
-        frontier.add(boardCellsState.value[startCellCoords.value.y][startCellCoords.value.x])
+    const setSpeed = (newSpeed: VisualizationSpeed) => {
+        speed.value = newSpeed
+    }
 
-        while (!frontier.empty()) {
-            const cell = frontier.get()
-            if (!cell) break
-            const { coords: currentCellCoords } = cell
-            const currentCell = boardCellsState.value[currentCellCoords.y][currentCellCoords.x]
-            if (currentCell.isVisited) continue
-            if (currentCell.type === 'target') {
-                await buildRoute(graphRoutes[currentCell.index].preRouteStepData)
+    const animateVisited = async (visited: CoordsData[], instant: boolean) => {
+        for (const coords of visited) {
+            const cell = boardCellsState.value[coords.y]?.[coords.x]
+            if (!cell || cell.type === 'start' || cell.type === 'target' || cell.type === 'bomb') continue
+            cell.isVisited = true
+            cell.isExpansionProcess = true
+            if (!instant) await delay(VISIT_DELAYS[speed.value])
+        }
+    }
+
+    const animateRoute = async (route: CoordsData[], instant: boolean) => {
+        for (const coords of route) {
+            const cell = boardCellsState.value[coords.y]?.[coords.x]
+            if (!cell || cell.type === 'start' || cell.type === 'target' || cell.type === 'bomb') continue
+            cell.type = 'route'
+            if (!instant) await delay(ROUTE_DELAY)
+        }
+    }
+
+    const runSegment = async (start: CoordsData, target: CoordsData, instant: boolean): Promise<PathfindingResult> => {
+        const result = currentAlgorithm.value.run(boardCellsState.value, start, target)
+        await animateVisited(result.visited, instant)
+        if (result.found) await animateRoute(result.route, instant)
+        return result
+    }
+
+    const onStart = async (instant = false) => {
+        if (isExpansionInProcess.value) return
+        isExpansionInProcess.value = true
+        isExpansionFinished.value = false
+        boardStore.clearSearchState()
+
+        const checkpoints =
+            bombCellCoords.value && currentAlgorithm.value.supportsBomb
+                ? [bombCellCoords.value, targetCellCoords.value]
+                : [targetCellCoords.value]
+        let currentStart: CoordsData = startCellCoords.value
+
+        for (const checkpoint of checkpoints) {
+            const result = await runSegment(currentStart, checkpoint, instant)
+            if (!result.found) {
+                isExpansionInProcess.value = false
                 return
             }
-
-            currentCell.isVisited = true
-
-            if (startCellCoords.value.index !== currentCell.index) currentCell.isExpansionProcess = true
-
-            if (!isExpansionFinished.value) {
-                await delay(1)
-            }
-
-            computeNeighbours(currentCell)
-        }
-
-        isExpansionInProcess.value = false
-    }
-
-    const computeNeighbours = (cell: CellData) => {
-        const { coords: cellCoords, index } = cell
-        const possibleNeighbours: CellData[] = []
-
-        if (cellCoords.x - 1 > -1) {
-            possibleNeighbours.push(boardCellsState.value[cellCoords.y][cellCoords.x - 1])
-        }
-        if (cellCoords.y + 1 < settingsStore.rows) {
-            possibleNeighbours.push(boardCellsState.value[cellCoords.y + 1][cellCoords.x])
-        }
-        if (cellCoords.x + 1 < settingsStore.cols) {
-            possibleNeighbours.push(boardCellsState.value[cellCoords.y][cellCoords.x + 1])
-        }
-        if (cellCoords.y - 1 > -1) {
-            possibleNeighbours.push(boardCellsState.value[cellCoords.y - 1][cellCoords.x])
-        }
-        if (!possibleNeighbours.length) return
-
-        enqueueNeighbours(possibleNeighbours, cell, index)
-    }
-
-    const enqueueNeighbours = (neighboursData: CellData[], parent: CellData, parentIndex: number) => {
-        neighboursData.forEach(neighbour => {
-            if (!neighbour.isVisited && neighbour.type !== 'barrier') {
-                neighbour.isExpansionProcess = true
-                algorithm.enqueueNeighbor(frontier, neighbour, parent, targetCellCoords.value)
-
-                if (!graphRoutes[neighbour.index]) {
-                    graphRoutes[neighbour.index] = {
-                        value: neighbour.coords,
-                        preRouteStepData: graphRoutes[parentIndex],
-                    }
-                }
-            }
-        })
-    }
-
-    const buildRoute = async (targetGraph?: GraphRouteData) => {
-        if (!targetGraph) return
-        const routeCoords: CoordsData[] = []
-        while (targetGraph.preRouteStepData) {
-            routeCoords.push(targetGraph.value)
-            targetGraph = targetGraph.preRouteStepData
-        }
-
-        for (const rCoords of routeCoords.reverse()) {
-            boardCellsState.value[rCoords.y][rCoords.x].type = 'route'
-            if (!isExpansionFinished.value) {
-                await delay(25)
-            }
+            currentStart = checkpoint
         }
 
         isExpansionInProcess.value = false
         isExpansionFinished.value = true
     }
 
-    watch(() => [startCellCoords.value.index, targetCellCoords.value.index], () => {
-        if (!isExpansionFinished.value) return
-        frontier.clean()
-        boardCellsState.value.forEach(row => {
-            row.forEach(cell => {
-                cell.isExpansionProcess = false
-                cell.isVisited = false
-                if (cell.type === 'route') cell.type = ''
-            })
-        })
-        onStart()
-    })
+    watch(
+        () => [startCellCoords.value.index, targetCellCoords.value.index, bombCellCoords.value?.index ?? -1],
+        () => {
+            if (!isExpansionFinished.value || isExpansionInProcess.value) return
+            void onStart(true)
+        }
+    )
+
+    const clearPath = () => {
+        isExpansionFinished.value = false
+        boardStore.clearSearchState()
+    }
 
     const onReset = () => {
         isExpansionFinished.value = false
-        frontier.clean()
         boardStore.reset()
     }
 
@@ -134,7 +112,11 @@ export const useExpansionStore = defineStore('expansion:store', () => {
         onStart,
         isExpansionInProcess,
         isExpansionFinished,
+        currentAlgorithm,
+        speed,
+        clearPath,
         onReset,
         setAlgorithm,
+        setSpeed,
     }
 })

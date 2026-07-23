@@ -6,12 +6,7 @@ function getCellType(x: number, y: number, startCoords: CoordsData, targetCoords
     return ''
 }
 
-export const generateDefaultBoard = (
-    cols: number,
-    rows: number,
-    startCoords: CoordsData,
-    targetCoords: CoordsData,
-) => {
+export const generateDefaultBoard = (cols: number, rows: number, startCoords: CoordsData, targetCoords: CoordsData) => {
     const data: CellData[][] = []
     for (let y = 0; y < rows; y++) {
         const rowData: CellData[] = []
@@ -22,6 +17,7 @@ export const generateDefaultBoard = (
                 isVisited: false,
                 isExpansionProcess: false,
                 type: getCellType(x, y, startCoords, targetCoords),
+                weight: 0,
             })
         }
         data.push(rowData)
@@ -30,10 +26,13 @@ export const generateDefaultBoard = (
 }
 
 export const getDefaultCoords = (cols: number, rows: number) => {
-    const startCoords: CoordsData = { x: 0, y: 0 }
+    const startCoords: CoordsData = {
+        x: Math.max(0, Math.floor(cols / 4)),
+        y: Math.max(0, Math.floor(rows / 2)),
+    }
     const targetCoords: CoordsData = {
-        x: Math.max(1, Math.min(cols - 2, 40)),
-        y: Math.max(1, Math.min(rows - 2, 20)),
+        x: Math.max(1, Math.min(cols - 1, Math.floor((3 * cols) / 4))),
+        y: Math.max(0, Math.floor(rows / 2)),
     }
     return { startCoords, targetCoords }
 }
